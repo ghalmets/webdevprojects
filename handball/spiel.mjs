@@ -1,4 +1,4 @@
-import {SETTINGS,clamp,canShoot,saveAt,passTarget,counterPosition} from './regeln.mjs?v=maedchen-2';
+import {SETTINGS,clamp,canShoot,saveAt,passTarget,counterPosition} from './regeln.mjs?v=schwarzrot-3';
 const $=id=>document.getElementById(id),ctx=$('game').getContext('2d');
 const keys=new Set();let mode='ready',phase='attack',home=0,away=0,remaining=SETTINGS.seconds,time=0,active=0,hookTimer=0,grace=0,lastDirection=1,phaseTime=0,shot=null,keeperY=260,targetY=260,players=[],defenders=[],runners=[],thrower=0;
 function say(text){$('message').textContent=text;}
@@ -40,12 +40,12 @@ function update(dt){if(mode!=='playing')return;time+=dt;remaining=Math.max(0,rem
 }
 function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function line(points,c,w=3){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();}
-function athlete(p,unicorn=false,number=1,selected=false){ctx.save();ctx.translate(p.x,p.y);ellipse(0,9,19,7,'#123b3b25');if(selected){ctx.strokeStyle='#f5d066';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,0,27,32,0,0,Math.PI*2);ctx.stroke();}line([[-6,6],[-10,20]],'#1f4654',6);line([[6,6],[10,20]],'#1f4654',6);ctx.fillStyle=unicorn?'#c7a1db':'#285a72';ctx.fillRect(-13,-21,26,32);ellipse(0,-29,13,14,unicorn?'#f5edf8':'#eecba5');if(unicorn){line([[0,-42],[3,-57]],'#edc974',6);line([[-8,-38],[-15,-44]],'#bd81cc',5);}else{
+function athlete(p,unicorn=false,number=1,selected=false){ctx.save();ctx.translate(p.x,p.y);ellipse(0,9,19,7,'#123b3b25');if(selected){ctx.strokeStyle='#f5d066';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,0,27,32,0,0,Math.PI*2);ctx.stroke();}line([[-6,6],[-10,20]],'#191b21',6);line([[6,6],[10,20]],'#191b21',6);ctx.fillStyle=unicorn?'#191b21':'#d52d3d';ctx.fillRect(-13,-21,26,32);if(!unicorn){ctx.fillStyle='#191b21';ctx.fillRect(-13,-21,7,32);ctx.fillRect(6,-21,7,32);}ellipse(0,-29,13,14,unicorn?'#303139':'#eecba5');if(unicorn){line([[0,-42],[3,-57]],'#edc974',6);line([[-8,-38],[-15,-44]],'#111218',5);}else{
  const hair=['#665146','#a57243','#4e3945'][number%3];
  ellipse(0,-40,12,6,hair);
  ellipse(15,-36,9,7,hair);line([[19,-34],[26,-25],[22,-14]],hair,7);
  ellipse(13,-37,3,3,'#f2d27c');
- }line([[-14,-15],[-22,-1]],unicorn?'#f0ddf5':'#eecba5',5);line([[14,-15],[22,-1]],unicorn?'#f0ddf5':'#eecba5',5);ctx.fillStyle='white';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText(number,0,1);ctx.restore();}
+ }line([[-14,-15],[-22,-1]],unicorn?'#303139':'#eecba5',5);line([[14,-15],[22,-1]],unicorn?'#303139':'#eecba5',5);ctx.fillStyle='white';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText(number,0,1);ctx.restore();}
 function draw(){ctx.fillStyle='#d1b18a';ctx.fillRect(0,0,1000,520);for(let x=0;x<1000;x+=80){ctx.fillStyle=x%160?'#ffffff06':'#00000003';ctx.fillRect(x,0,80,520);}ctx.fillStyle='#438d92';ctx.fillRect(50,65,900,390);ctx.fillStyle='#4b9698';ctx.fillRect(500,65,450,390);
  const keeping=phase==='keeper'||phase==='result';ctx.fillStyle='#eed67e55';ctx.fillRect(650,90,175,340);ctx.strokeStyle='#f2efe0';ctx.lineWidth=3;ctx.strokeRect(50,65,900,390);line([[500,65],[500,455]],'#f2efe0',2);ctx.beginPath();ctx.arc(500,260,47,0,Math.PI*2);ctx.stroke();
  // Torräume und Netze.

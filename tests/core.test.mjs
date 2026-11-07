@@ -24,3 +24,11 @@ test('Karotten müssen in der passenden Höhe eingesammelt werden',()=>{
  assert.ok(collectsCarrot(0,0)); assert.ok(collectsCarrot(1,1));
  assert.ok(!collectsCarrot(0,1)); assert.ok(!collectsCarrot(1,0));
 });
+test('Mehr Erholungszeit und großzügige Hindernishöhen',()=>{
+ const fullJumpSeconds=2*SETTINGS.jumpVelocity/SETTINGS.gravity;
+ assert.ok(SETTINGS.spawnInterval > fullJumpSeconds + 1.5);
+ assert.ok(clearsObstacle('log',.4,false));
+ assert.ok(clearsObstacle('branch',.25,true));
+ assert.ok(!clearsObstacle('log',0,false));
+ assert.ok(!clearsObstacle('branch',0,false));
+});

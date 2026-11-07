@@ -1,4 +1,4 @@
-import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from './core.mjs?v=reiter-2';
+import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from './core.mjs?v=entspannt-4';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('game');
@@ -66,13 +66,18 @@ function update(dt) {
   if (spawnTimer <= 0) { spawn(); spawnTimer += SETTINGS.spawnInterval; }
   for (const item of items) {
     item.distance -= speed * dt;
-    if (!item.resolved && item.distance <= .12) {
+    // Ein großzügiges Zeitfenster statt eines einzigen, schwer sichtbaren Trefferpunkts.
+    // Ein rechtzeitiger Sprung oder Ducken gilt für dieses Hindernis als geschafft.
+    if (item.type !== 'carrot' && item.distance <= .20 && item.distance >= .06
+        && clearsObstacle(item.type, height, down)) item.avoided = true;
+    const contact = item.type === 'carrot' ? .12 : .06;
+    if (!item.resolved && item.distance <= contact) {
       item.resolved = true;
       if (item.type === 'carrot') {
         if (collectsCarrot(height, item.altitude)) {
           score += SETTINGS.carrotPoints; item.used = true; burst(500, 290, false);
         }
-      } else if (!clearsObstacle(item.type, height, down) && invincible <= 0) {
+      } else if (!item.avoided && invincible <= 0) {
         hearts--; invincible = SETTINGS.safeSecondsAfterHit; burst(500, 300, true);
       }
     }

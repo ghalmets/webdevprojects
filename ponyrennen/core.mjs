@@ -16,3 +16,8 @@ export function clearsObstacle(type, height, down) {
 export function collectsCarrot(height, carrotHeight) {
   return Math.abs(height - carrotHeight) < .55;
 }
+
+// Kontakt am Boden vor den Hufen, nicht an den Ohren.
+export const CONTACT_Y = 430;
+export function groundY(distance) { return 146 + (1 - distance) ** 2 * (CONTACT_Y - 146); }
+export function actionDue(distance, speed) { return distance > 0 && distance / speed <= .7; }

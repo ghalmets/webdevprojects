@@ -32,3 +32,15 @@ test('Mehr Erholungszeit und großzügige Hindernishöhen',()=>{
  assert.ok(!clearsObstacle('log',0,false));
  assert.ok(!clearsObstacle('branch',0,false));
 });
+test('Hindernisse erreichen erst an der Huf-Linie den Kontaktpunkt', async()=>{
+ const {groundY,CONTACT_Y,actionDue}=await import('../ponyrennen/core.mjs');
+ assert.equal(groundY(0),CONTACT_Y);
+ assert.ok(groundY(.2)<CONTACT_Y);
+ for(const speed of SETTINGS.speeds){
+  assert.ok(actionDue(speed*.6,speed));
+  assert.ok(!actionDue(speed*.8,speed));
+  let h=0,v=SETTINGS.jumpVelocity;
+  for(let i=0;i<36;i++)({height:h,velocity:v}=advanceJump(h,v,1/60));
+  assert.ok(clearsObstacle('log',h,false));
+ }
+});

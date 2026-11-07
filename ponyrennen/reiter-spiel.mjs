@@ -1,4 +1,4 @@
-import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from './core.mjs?v=entspannt-4';
+import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot, CONTACT_Y, groundY, actionDue } from './core.mjs?v=hufe-5';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('game');
@@ -68,9 +68,9 @@ function update(dt) {
     item.distance -= speed * dt;
     // Ein großzügiges Zeitfenster statt eines einzigen, schwer sichtbaren Trefferpunkts.
     // Ein rechtzeitiger Sprung oder Ducken gilt für dieses Hindernis als geschafft.
-    if (item.type !== 'carrot' && item.distance <= .20 && item.distance >= .06
+    if (item.type !== 'carrot' && actionDue(item.distance, speed)
         && clearsObstacle(item.type, height, down)) item.avoided = true;
-    const contact = item.type === 'carrot' ? .12 : .06;
+    const contact = 0;
     if (!item.resolved && item.distance <= contact) {
       item.resolved = true;
       if (item.type === 'carrot') {
@@ -130,10 +130,14 @@ function draw() {
    line([[500-half*.36,py],[500-half*.36,py+8*size]],'#c7cb9970',2*size);
    line([[500+half*.36,py],[500+half*.36,py+8*size]],'#c7cb9970',2*size);
  }
+ // Die Kontaktlinie bleibt am Boden verankert und bewegt sich mit der Kamera.
+ line([[205,CONTACT_Y],[795,CONTACT_Y]],'#7e946b',3);
+ ctx.font='bold 12px sans-serif';ctx.textAlign='left';ctx.fillStyle='#526f49';
+ ctx.fillText('HUF-LINIE',210,CONTACT_Y-10);
  for(const item of [...items].sort((a,b)=>b.distance-a.distance)) {
    const near=1-item.distance;
    const scale=.12+near*near*1.35;
-   const py=146+near*near*235;
+   const py=groundY(item.distance);
    if(item.type==='carrot') {
      ellipse(500,py+8,17*scale,4*scale,'#82925830');
      carrot(500,py-20*scale-item.altitude*75*scale,scale);
@@ -152,7 +156,7 @@ function draw() {
  ctx.restore();
  // Der eigene Ponyhals, Hinterkopf, Ohren und Zügel im Vordergrund.
  const bob=mode==='playing' && height===0 ? Math.sin(elapsed*12)*3 : 0;
- const headY=365+bob-height*12+(down&&height===0?50:0);
+ const headY=420+bob-height*12+(down&&height===0?50:0);
  ctx.save();ctx.translate(500,headY);
  if(invincible>0)ctx.globalAlpha=.5+Math.sin(elapsed*24)*.25;
  shape([[-86,130],[-52,30],[-37,-24],[37,-24],[52,30],[86,130]],color);
@@ -166,6 +170,13 @@ function draw() {
  line([[40,2],[51,62],[128,125]],'#61794f',5);
  line([[-39,5],[39,5]],'#61794f',4);
  ctx.restore();
+ const nextObstacle=items.filter(i=>i.type!=='carrot'&&!i.resolved&&i.distance>0).sort((a,b)=>a.distance-b.distance)[0];
+ if(mode==='playing' && nextObstacle) {
+   const due=actionDue(nextObstacle.distance,SETTINGS.speeds[speedLevel]);
+   const text=nextObstacle.avoided ? '✓ Geschafft!' : due ? (nextObstacle.type==='log' ? '↑ JETZT SPRINGEN!' : '↓ JETZT DUCKEN!') : (nextObstacle.type==='log' ? 'Baumstamm voraus …' : 'Ast voraus …');
+   ctx.fillStyle=due?'#fff3ca':'#f7f8ecef';ctx.fillRect(300,24,400,44);
+   ctx.font='bold 19px sans-serif';ctx.textAlign='center';ctx.fillStyle='#29443a';ctx.fillText(text,500,52);
+ }
  particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/.65);ellipse(p.x,p.y,4,4,p.hit?'#ce8f7c':'#ec9545');});ctx.globalAlpha=1;
 }
 let last=0;

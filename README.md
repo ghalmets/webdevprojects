@@ -105,7 +105,7 @@ Neues Spiel: https://ghalmets.github.io/webdevprojects/autofahrt/
 - ↑ / W: Gas. ↓ / S: bremsen und rückwärts. ← / → oder A / D: lenken.
 - Am Handy dieselben vier Bildschirmtasten gedrückt halten; Gas und Lenken gleichzeitig sind möglich.
 - Fahrzeugphysik mit Beschleunigung, Ausrollen und umgekehrter Lenkrichtung beim Rückwärtsfahren.
-- Hindernisse und drei patrouillierende Vampire. Vampire stoppen das Auto kurz; anschließend gibt es eine Schutzzeit zum Weiterfahren.
+- Längere Strecke mit über 5 km, 17 Hindernissen und sechs schnelleren patrouillierenden Vampiren. Höchsttempo 50 % höher; stärkere Beschleunigung und schnellere Lenkung. Vampire stoppen das Auto kurz; anschließend gibt es eine Schutzzeit zum Weiterfahren.
 - Grüne Fähnchen speichern den Fortschritt. R oder „Zum Fähnchen“ setzt das Auto frei auf die Straße.
 - Ziel am nördlichen Straßenende. Pause mit P / Escape oder Pausentaste.
 - `autofahrt/regeln.mjs`: Fahrzeugphysik und Strecke; `spiel.mjs`: Spielablauf und Zeichnung.

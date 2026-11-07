@@ -15,6 +15,13 @@ test('Vampire stoppen, Schutzzeit befreit, Fähnchen und Ziel funktionieren',()=
  const run=game();run('start();keys.add("ArrowUp");update(.1);draw()');assert.ok(run('car.y')<rules.START.y);
  run('keys.clear();protection=0;const v=vampirePosition(time,0);car={...START,x:v.x,y:v.y};update(0)');assert.ok(run('stopTime')>0);
  run('update(1);keys.add("ArrowDown");update(.1)');assert.ok(run('car.speed')<0);
- run('keys.clear();car={...START,y:1100};update(0);reset()');assert.equal(run('checkpoint'),2);assert.equal(run('car.y'),1180);
+ run('keys.clear();car={...START,y:CHECKPOINTS[2].y-20};update(0);reset()');assert.equal(run('checkpoint'),2);assert.equal(run('car.y'),rules.CHECKPOINTS[2].y);
  run('pause();update(1);draw()');assert.equal(run('mode'),'paused');run('start();car.y=100;update(0);draw()');assert.equal(run('mode'),'finished');run('start()');assert.equal(run('checkpoint'),0);
+});
+test('Lange Rallye bleibt vollständig befahrbar und innerhalb der Weltgrenzen',()=>{
+ assert.ok(rules.START.y-150>5000);assert.equal(rules.OBSTACLES.length,17);assert.equal(rules.VAMPIRE_COUNT,6);
+ assert.equal(rules.SETTINGS.forwardSpeed,390);
+ for(let i=0;i<rules.VAMPIRE_COUNT;i++){const v=rules.vampirePosition(0,i);assert.ok(v.y>150&&v.y<rules.START.y);}
+ let car={...rules.START};for(let i=0;i<1000;i++)car=rules.stepCar(car,{reverse:true},.04);
+ assert.ok(car.y<=rules.SETTINGS.worldHeight-80);assert.ok(Number.isFinite(car.y));
 });

@@ -76,10 +76,10 @@ Ein zweites Spiel im Ordner `vampirinchen/`; Pony Sprint bleibt im Ordner `ponyr
 
 - Spielen: https://ghalmets.github.io/webdevprojects/vampirinchen/
 - Alle vier Pfeiltasten, W A S D oder die vier Bildschirmtasten gedrückt halten.
-- Drei Mondsteine pro Garten sammeln und rechts zum Tor laufen.
+- Fünf Kapitel: großer scrollender Garten, Schlossbrücke und Falltür, Keller mit Leiter, Obervampir-Turm, Heimflug.
 - Hecken versperren den direkten Weg. Vampirinchen läuft im Garten herum.
-- Bei einem Zusammenstoß bleiben die Figuren freundlich: Dialog statt Schaden, kein Blutbild, kein Zurücksetzen.
-- Drei Gärten, Pause mit P / Escape oder der Pausentaste.
+- Vampire patrouillieren im Garten und Keller. Eine Berührung schiebt Lotta sanft zurück; nach kurzer Schutzzeit kann sie weiter. Keine verlorenen Leben.
+- Schlüssel vor der Brücke und im Keller sammeln. Die Brückenmitte nicht verlassen. Auf die Falltür laufen. An der Leiter ↑ halten; beim Obervampir nach drei Zaubersteinen ↑ drücken. Mit Flügeln nach rechts und unten bis zum Haus fliegen. Pause mit P / Escape oder der Pausentaste.
 - `index.html`: Geschichte und Texte; `style.css`: Gestaltung; `spiel.mjs`: Ablauf und Zeichnung; `regeln.mjs`: Tempo, Hecken und Bewegungsregeln.
 
 Prüfen: `node --test tests/*.test.mjs`

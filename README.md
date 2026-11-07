@@ -83,3 +83,16 @@ Ein zweites Spiel im Ordner `vampirinchen/`; Pony Sprint bleibt im Ordner `ponyr
 - `index.html`: Geschichte und Texte; `style.css`: Gestaltung; `spiel.mjs`: Ablauf und Zeichnung; `regeln.mjs`: Tempo, Hecken und Bewegungsregeln.
 
 Prüfen: `node --test tests/*.test.mjs`
+
+
+## UHC Tulln U9 – Einhorn-Cup
+
+Drittes Spiel unter https://ghalmets.github.io/webdevprojects/handball/ – ein selbstgemachtes Fanspiel, mit eigenständig gezeichneten Figuren ohne Vereinslogo.
+
+- Bewegen: Pfeiltasten oder W A S D, am Handy linkes Steuerkreuz.
+- Zweites Bedienelement: oben Schießen (Leertaste), darunter Passen (E); Haken (H) als zusätzliche Taste.
+- Mit Ball nach rechts in die gelbe Wurfzone laufen und außerhalb des Torraums werfen.
+- Passen wechselt zur freien Mitspielperson. Haken versetzt die Figur seitlich und kurz an der Abwehr vorbei.
+- Nach einem Wurf wechseln Angriff und Torwartphase. Im eigenen Tor ↑ / ↓ zur rosa Zielmarkierung steuern und den Einhorn-Schuss halten.
+- 90 Sekunden pro Partie; Pause mit P / Escape oder Pausentaste.
+- `handball/regeln.mjs`: Spielzeit, Tempo, Passauswahl und Torwart-Reichweite. `spiel.mjs`: Spielablauf und Zeichnung.

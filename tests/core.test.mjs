@@ -1,19 +1,26 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clamp, overlaps, SETTINGS, TRACK } from '../ponyrennen/core.mjs';
-test('Pony bleibt am oberen und unteren Wiesenrand',()=>{
- assert.equal(clamp(-100,TRACK.top,TRACK.bottom),TRACK.top);
- assert.equal(clamp(999,TRACK.top,TRACK.bottom),TRACK.bottom);
- assert.equal(clamp(250,TRACK.top,TRACK.bottom),250);
+import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from '../ponyrennen/core.mjs';
+test('Sprung steigt, überwindet Baumstamm und landet wieder am Boden', () => {
+ let height = 0, velocity = SETTINGS.jumpVelocity, peak = 0;
+ for (let i=0;i<120;i++) {
+  ({height,velocity}=advanceJump(height,velocity,1/60)); peak=Math.max(peak,height);
+ }
+ assert.ok(peak > .55);
+ assert.equal(height,0); assert.equal(velocity,0);
+ assert.ok(clearsObstacle('log',peak,false));
+ assert.ok(!clearsObstacle('log',0,false));
 });
-test('Objekte treffen nur in unmittelbarer Nähe',()=>{
- const pony={x:180,y:250};
- assert.ok(overlaps(pony,{x:190,y:260}));
- assert.ok(!overlaps(pony,{x:190,y:310}));
- assert.ok(!overlaps(pony,{x:230,y:250}));
+test('Unten bringt das Pony schneller nach unten und duckt unter Ästen',()=>{
+ const normal=advanceJump(1,0,.1);
+ const down=advanceJump(1,0,.1,true);
+ assert.ok(down.height < normal.height);
+ assert.ok(clearsObstacle('branch',0,true));
+ assert.ok(!clearsObstacle('branch',0,false));
+ assert.ok(!clearsObstacle('branch',1,true));
+ assert.equal(advanceJump(0,0,1,true).height,0);
 });
-test('Auch bei hohem Tempo bleibt zwischen Hindernissen Zeit zum Ausweichen',()=>{
- const travelBetweenRows=60/SETTINGS.ponyMoveSpeed;
- assert.ok(SETTINGS.spawnInterval>travelBetweenRows*2);
- assert.equal(SETTINGS.startingHearts,3);
+test('Karotten müssen in der passenden Höhe eingesammelt werden',()=>{
+ assert.ok(collectsCarrot(0,0)); assert.ok(collectsCarrot(1,1));
+ assert.ok(!collectsCarrot(0,1)); assert.ok(!collectsCarrot(1,0));
 });

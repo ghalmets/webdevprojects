@@ -1,16 +1,18 @@
-// Die Spielregeln: Hier lassen sich eigene Ideen besonders einfach ausprobieren.
+// Hier könnt ihr Dauer, Punkte, Tempo und Sprunghöhe verändern.
 export const SETTINGS = {
-  roundSeconds: 60,
-  startingHearts: 3,
-  starPoints: 10,
-  speeds: [180, 240, 310], // Pixel pro Sekunde
-  ponyMoveSpeed: 255,
-  spawnInterval: 1.18,
-  starChance: 0.62,
-  safeSecondsAfterHit: 1.6,
+  roundSeconds: 60, startingHearts: 3, carrotPoints: 10,
+  speeds: [.19, .24, .29], // Annäherung pro Sekunde
+  spawnInterval: 1.8, carrotChance: .60,
+  safeSecondsAfterHit: 1.6, jumpVelocity: 4.8, gravity: 9,
 };
-export const TRACK = { top: 158, bottom: 387, ponyX: 180 };
-export function overlaps(pony, item) {
-  return Math.abs(pony.x - item.x) < 38 && Math.abs(pony.y - item.y) < 27;
+export function advanceJump(height, velocity, dt, down = false) {
+  const nextVelocity = velocity - (SETTINGS.gravity + (down ? 18 : 0)) * dt;
+  const nextHeight = Math.max(0, height + nextVelocity * dt);
+  return { height: nextHeight, velocity: nextHeight === 0 ? 0 : nextVelocity };
 }
-export function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+export function clearsObstacle(type, height, down) {
+  return type === 'branch' ? down && height < .18 : height > .55;
+}
+export function collectsCarrot(height, carrotHeight) {
+  return Math.abs(height - carrotHeight) < .55;
+}

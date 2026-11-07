@@ -4,7 +4,14 @@ Mehrere Spiele leben in diesem Repository jeweils in einem eigenen Unterordner. 
 
 ## Aktuelles Spiel: Pony Sprint
 
-Ein kleines Pferderennspiel als Ausgangspunkt zum gemeinsamen Vibe-Coden mit Kindern. Das Pony läuft von selbst. Mit **↑ / ↓**, **W / S** oder den Bildschirmtasten lenkst du nach oben und unten. Sammle Sterne (+10 Punkte), weiche Baumstämmen und Steinen aus und erreiche mit drei Herzen das Ende der 60 Sekunden. Mit **P / Escape** oder der Pausentaste pausierst du. Beim Wechsel in ein anderes Fenster pausiert das Spiel automatisch.
+Ein kleines Pferderennspiel aus der **Reiterperspektive** als Ausgangspunkt zum gemeinsamen Vibe-Coden mit Kindern. Du blickst vom Sattel über die Ponyohren nach vorne. Das Pony läuft von selbst.
+
+- **↑ / W / obere Bildschirmtaste:** springen. Für den nächsten Sprung erneut drücken.
+- **↓ / S / untere Bildschirmtaste halten:** schneller nach unten landen; am Boden unter Ästen ducken.
+- Über Baumstämme springen, unter Ästen ducken und Karotten auf dem Weg oder in Sprunghöhe sammeln (+10 Punkte).
+- Drei Herzen, 60 Sekunden. **P / Escape / Pausentaste:** Pause. Fensterwechsel pausiert automatisch.
+
+Beide Steuerungstasten funktionieren auch auf dem Handy.
 
 ## Lokal loslegen
 
@@ -32,11 +39,11 @@ Die Pony-Werkstatt ändert Namen, Fellfarbe und Tempo direkt im Spiel. Der pers�
 
 Beginnt mit einer kleinen Änderung, spielt eine Runde und entscheidet dann, was als Nächstes Spaß macht:
 
-- „Mach aus den Sternen Karotten. Jede Karotte zählt 20 Punkte.“
+- „Jede Karotte soll 20 Punkte zählen.“
 - „Unser Pony soll Luna heißen und eine lila Mähne bekommen.“
 - „Füge einen einfachen Modus mit fünf Herzen hinzu.“
 - „Zeige nach dem Rennen einen lustigen Glückwunsch an.“
-- „Erkläre uns die Funktion `spawn`, als wären wir zehn Jahre alt.“
+- „Erkläre uns die Funktion `advanceJump`, als wären wir zehn Jahre alt.“
 - „Baue ein Einhorn mit einem Regenbogenschweif ein.“
 
 Hilfreicher Zusatz: „Ändere nur diese eine Sache und erkläre danach, welche Datei du geändert hast.“ Keine Namen, Fotos oder persönlichen Daten der Kinder sind nötig.

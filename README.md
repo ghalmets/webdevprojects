@@ -111,10 +111,10 @@ Neues Spiel: https://ghalmets.github.io/webdevprojects/autofahrt/
 - `autofahrt/regeln.mjs`: Fahrzeugphysik und Strecke; `spiel.mjs`: Spielablauf und Zeichnung.
 
 
-## Die Plusreise – ab Klasse 2
+## Die Zahlenreise – ab Klasse 2
 
 https://ghalmets.github.io/webdevprojects/plusreise/
 
-Nur Plusaufgaben: bis 20 zum Aufwärmen oder bis 100, ohne / mit Zehnerübergang. Zehn richtige Aufgaben ergeben zehn Sonnen. Beliebig viele Versuche, keine Zeitbegrenzung, keine Strafe. Bildschirmtastatur oder normale Zahleneingabe. Tipps erklären das Auffüllen zum nächsten Zehner oder das Zerlegen der zweiten Zahl. Ein Wechsel der Reiseroute startet eine neue Runde.
+Zahlenraum bis 100: reine Zehner addieren (30 + 40), reiner Zehner + gemischte zweistellige Zahl (20 + 34, auch umgekehrt), Zehner-/Einerstelle erkennen, Einer minus Einer sowie zweistellig minus einstellig mit Zehnerübergang (32 − 7). Im Lernmix sind sechs von zehn Aufgaben Zehner-Plus, zwei Stellenwertaufgaben und zwei Minusaufgaben. Alle Übungsarten sind auch einzeln auswählbar. Zehn richtige Aufgaben ergeben zehn Sonnen. Beliebig viele Versuche, keine Zeitbegrenzung, keine Strafe. Bildschirmtastatur oder normale Zahleneingabe. Tipps erklären das Auffüllen zum nächsten Zehner oder das Zerlegen der zweiten Zahl. Ein Wechsel der Reiseroute startet eine neue Runde.
 
 `plusreise/regeln.mjs` erzeugt Aufgaben und Tipps; `spiel.mjs` steuert Eingabe, Fortschritt und Rundenauswertung.

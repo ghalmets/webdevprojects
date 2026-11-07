@@ -31,7 +31,7 @@ python3 -m http.server 8000
 | `ponyrennen/index.html` | Texte, Knöpfe und Pony-Werkstatt |
 | `ponyrennen/style.css` | Farben, Schrift und Layout |
 | `ponyrennen/core.mjs` | Spielregeln: Dauer, Herzen, Punkte, Tempo und Trefferprüfung |
-| `ponyrennen/game.mjs` | Steuerung, Spielablauf und Zeichnen der Wiese und des Ponys |
+| `ponyrennen/reiter-spiel.mjs` | Steuerung, Spielablauf und Zeichnen der Wiese und des Ponys |
 
 Die Pony-Werkstatt ändert Namen, Fellfarbe und Tempo direkt im Spiel. Der persönliche Rekord bleibt lokal in diesem Browser gespeichert. Das Spiel benötigt keinen Account und kein Backend. Die optionalen Webfonts kommen von Google Fonts; mit Systemschrift funktioniert es ebenfalls.
 

@@ -96,3 +96,16 @@ Drittes Spiel unter https://ghalmets.github.io/webdevprojects/handball/ – ein 
 - Die Mädchenmannschaft spielt gegen drei Einhörner im Gegenangriff. Nach deinem Wurf laufen sie nach links aufs Tor, wechseln per Pass die Werferin und schießen schneller. Als Torhüterin mit ↑ / ↓ reagieren: Zielhinweis erst 0,45 Sekunden vor Abwurf, kleinere Haltereichweite.
 - 90 Sekunden pro Partie; Pause mit P / Escape oder Pausentaste.
 - `handball/regeln.mjs`: Spielzeit, Tempo, Passauswahl und Torwart-Reichweite. `spiel.mjs`: Spielablauf und Zeichnung.
+
+
+## Vampir-Rallye
+
+Neues Spiel: https://ghalmets.github.io/webdevprojects/autofahrt/
+
+- ↑ / W: Gas. ↓ / S: bremsen und rückwärts. ← / → oder A / D: lenken.
+- Am Handy dieselben vier Bildschirmtasten gedrückt halten; Gas und Lenken gleichzeitig sind möglich.
+- Fahrzeugphysik mit Beschleunigung, Ausrollen und umgekehrter Lenkrichtung beim Rückwärtsfahren.
+- Hindernisse und drei patrouillierende Vampire. Vampire stoppen das Auto kurz; anschließend gibt es eine Schutzzeit zum Weiterfahren.
+- Grüne Fähnchen speichern den Fortschritt. R oder „Zum Fähnchen“ setzt das Auto frei auf die Straße.
+- Ziel am nördlichen Straßenende. Pause mit P / Escape oder Pausentaste.
+- `autofahrt/regeln.mjs`: Fahrzeugphysik und Strecke; `spiel.mjs`: Spielablauf und Zeichnung.

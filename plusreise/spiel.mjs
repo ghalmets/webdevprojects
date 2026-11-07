@@ -1,0 +1,13 @@
+import {makeTask,hintFor} from './regeln.mjs';
+const $=id=>document.getElementById(id);let task,solved=0,locked=false,previous='';
+function feedback(text,style=''){$('feedback').textContent=text;$('feedback').className=style;}
+function hud(){$('progress').textContent=solved===10?'Reise geschafft!':`Aufgabe ${solved+1} von 10`;$('suns').textContent=`☀ ${solved} / 10`;$('suns').setAttribute('aria-label',`${solved} von 10 Sonnen gesammelt`);$('progress-fill').style.width=`${solved*10}%`;}
+function nextTask(){task=makeTask($('level').value);for(let i=0;i<10&&`${task.a}+${task.b}`===previous;i++)task=makeTask($('level').value);previous=`${task.a}+${task.b}`;locked=false;$('task').textContent=`${task.a} + ${task.b} = ?`;$('answer').value='';$('answer').disabled=false;$('check').disabled=false;$('next').hidden=true;$('hint').hidden=true;$('hint-button').disabled=false;feedback('Tippe dein Ergebnis ein. Du hast so viele Versuche, wie du brauchst.');hud();}
+function restart(){solved=0;previous='';$('complete').hidden=true;$('exercise').hidden=false;nextTask();}
+function check(){if(locked)return;const raw=$('answer').value.trim();if(!/^\d+$/.test(raw)){feedback('Gib zuerst eine Zahl ein.');return;}if(Number(raw)!==task.answer){feedback('Noch nicht ganz. Schau dir die Zahlen nochmal an oder hol dir einen Tipp. Du schaffst das!','retry');return;}locked=true;solved++;$('answer').disabled=true;$('check').disabled=true;$('hint-button').disabled=true;feedback(`Richtig! ${task.a} + ${task.b} = ${task.answer}. Eine Sonne für dich! ☀`,'success');hud();$('next').textContent=solved===10?'Meine Sonnen ansehen →':'Weiterreisen →';$('next').hidden=false;$('next').focus({preventScroll:true});}
+$('answer-form').addEventListener('submit',e=>{e.preventDefault();check();});$('answer').addEventListener('input',()=>{$('answer').value=$('answer').value.replace(/[^0-9]/g,'').slice(0,3);});
+$('next').addEventListener('click',()=>{if(solved===10){$('exercise').hidden=true;$('complete').hidden=false;$('restart').focus({preventScroll:true});}else nextTask();});
+$('level').addEventListener('change',restart);$('restart').addEventListener('click',restart);
+$('hint-button').addEventListener('click',()=>{$('hint').hidden=false;$('hint-text').textContent=hintFor(task);});
+document.querySelectorAll('[data-digit]').forEach(b=>b.addEventListener('click',()=>{if(!locked&&$('answer').value.length<3)$('answer').value+=b.dataset.digit;}));
+$('erase').addEventListener('click',()=>{if(!locked)$('answer').value=$('answer').value.slice(0,-1);});$('clear').addEventListener('click',()=>{if(!locked)$('answer').value='';});restart();

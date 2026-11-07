@@ -109,3 +109,12 @@ Neues Spiel: https://ghalmets.github.io/webdevprojects/autofahrt/
 - Grüne Fähnchen speichern den Fortschritt. R oder „Zum Fähnchen“ setzt das Auto frei auf die Straße.
 - Ziel am nördlichen Straßenende. Pause mit P / Escape oder Pausentaste.
 - `autofahrt/regeln.mjs`: Fahrzeugphysik und Strecke; `spiel.mjs`: Spielablauf und Zeichnung.
+
+
+## Die Plusreise – ab Klasse 2
+
+https://ghalmets.github.io/webdevprojects/plusreise/
+
+Nur Plusaufgaben: bis 20 zum Aufwärmen oder bis 100, ohne / mit Zehnerübergang. Zehn richtige Aufgaben ergeben zehn Sonnen. Beliebig viele Versuche, keine Zeitbegrenzung, keine Strafe. Bildschirmtastatur oder normale Zahleneingabe. Tipps erklären das Auffüllen zum nächsten Zehner oder das Zerlegen der zweiten Zahl. Ein Wechsel der Reiseroute startet eine neue Runde.
+
+`plusreise/regeln.mjs` erzeugt Aufgaben und Tipps; `spiel.mjs` steuert Eingabe, Fortschritt und Rundenauswertung.

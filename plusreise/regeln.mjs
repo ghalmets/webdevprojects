@@ -11,7 +11,7 @@ export function makeTask(level='mittel',random=Math.random){
 }
 export function hintFor({a,b}){
  const gap=10-a%10;
- if(a%10!==0&&b>gap)return `Fülle zuerst den nächsten Zehner: ${a} + ${gap} = ${a+gap}. Von ${b} bleiben noch ${b-gap} übrig. Zähle sie dazu!`;
+ if(a%10+b%10>=10&&b>gap)return `Fülle zuerst den nächsten Zehner: ${a} + ${gap} = ${a+gap}. Von ${b} bleiben noch ${b-gap} übrig. Zähle sie dazu!`;
  const tens=Math.floor(b/10)*10,ones=b%10;
  if(tens&&ones)return `Zerlege die zweite Zahl: ${b} = ${tens} + ${ones}. Rechne zuerst ${a} + ${tens} und zähle dann ${ones} dazu.`;
  return `Starte bei ${a} und zähle ${b} Schritte weiter. Du kannst deine Finger oder den Zahlenstrahl benutzen.`;

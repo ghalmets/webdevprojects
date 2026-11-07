@@ -1,4 +1,4 @@
-import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from './core.mjs';
+import { SETTINGS, advanceJump, clearsObstacle, collectsCarrot } from './core.mjs?v=reiter-2';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('game');

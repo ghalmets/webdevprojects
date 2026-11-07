@@ -68,3 +68,18 @@ In **Settings → Pages** als Quelle **Deploy from a branch**, Branch **main**, 
 3. Auf der Startseite im Hauptverzeichnis einen weiteren Link zu `./weltraumspiel/` ergänzen.
 
 Links und Dateien relativ einbinden, etwa `./style.css`, damit sie unter dem Repository-Pfad funktionieren. Die Pages-Einstellung bleibt unverändert.
+
+
+## Lotta & Vampirinchen
+
+Ein zweites Spiel im Ordner `vampirinchen/`; Pony Sprint bleibt im Ordner `ponyrennen/` erhalten.
+
+- Spielen: https://ghalmets.github.io/webdevprojects/vampirinchen/
+- Alle vier Pfeiltasten, W A S D oder die vier Bildschirmtasten gedrückt halten.
+- Drei Mondsteine pro Garten sammeln und rechts zum Tor laufen.
+- Hecken versperren den direkten Weg. Vampirinchen läuft im Garten herum.
+- Bei einem Zusammenstoß bleiben die Figuren freundlich: Dialog statt Schaden, kein Blutbild, kein Zurücksetzen.
+- Drei Gärten, Pause mit P / Escape oder der Pausentaste.
+- `index.html`: Geschichte und Texte; `style.css`: Gestaltung; `spiel.mjs`: Ablauf und Zeichnung; `regeln.mjs`: Tempo, Hecken und Bewegungsregeln.
+
+Prüfen: `node --test tests/*.test.mjs`

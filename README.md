@@ -1,4 +1,8 @@
-# 🐴 Pony Sprint
+# 🎮 Unsere Spielewerkstatt
+
+Mehrere Spiele leben in diesem Repository jeweils in einem eigenen Unterordner. Die `index.html` im Hauptverzeichnis ist die gemeinsame Startseite mit Links zu allen Spielen.
+
+## Aktuelles Spiel: Pony Sprint
 
 Ein kleines Pferderennspiel als Ausgangspunkt zum gemeinsamen Vibe-Coden mit Kindern. Das Pony läuft von selbst. Mit **↑ / ↓**, **W / S** oder den Bildschirmtasten lenkst du nach oben und unten. Sammle Sterne (+10 Punkte), weiche Baumstämmen und Steinen aus und erreiche mit drei Herzen das Ende der 60 Sekunden. Mit **P / Escape** oder der Pausentaste pausierst du. Beim Wechsel in ein anderes Fenster pausiert das Spiel automatisch.
 
@@ -10,16 +14,17 @@ Keine Installation und kein Build nötig. Im Projektordner:
 python3 -m http.server 8000
 ```
 
-Öffne http://localhost:8000. Wegen der JavaScript-Module bitte über diesen Server öffnen, nicht per Doppelklick auf die HTML-Datei. Alternativ funktioniert die Erweiterung „Live Server“ in VS Code.
+Öffne http://localhost:8000 für die Spieleübersicht oder http://localhost:8000/ponyrennen/ für das Pferderennspiel. Wegen der JavaScript-Module bitte über diesen Server öffnen, nicht per Doppelklick auf die HTML-Datei. Alternativ funktioniert die Erweiterung „Live Server“ in VS Code.
 
 ## Wo ändere ich was?
 
 | Datei | Inhalt |
 | --- | --- |
-| `index.html` | Texte, Knöpfe und Pony-Werkstatt |
-| `style.css` | Farben, Schrift und Layout |
-| `core.mjs` | Spielregeln: Dauer, Herzen, Punkte, Tempo und Trefferprüfung |
-| `game.mjs` | Steuerung, Spielablauf und Zeichnen der Wiese und des Ponys |
+| `index.html` | Gemeinsame Startseite mit Links zu den Spielen |
+| `ponyrennen/index.html` | Texte, Knöpfe und Pony-Werkstatt |
+| `ponyrennen/style.css` | Farben, Schrift und Layout |
+| `ponyrennen/core.mjs` | Spielregeln: Dauer, Herzen, Punkte, Tempo und Trefferprüfung |
+| `ponyrennen/game.mjs` | Steuerung, Spielablauf und Zeichnen der Wiese und des Ponys |
 
 Die Pony-Werkstatt ändert Namen, Fellfarbe und Tempo direkt im Spiel. Der persönliche Rekord bleibt lokal in diesem Browser gespeichert. Das Spiel benötigt keinen Account und kein Backend. Die optionalen Webfonts kommen von Google Fonts; mit Systemschrift funktioniert es ebenfalls.
 
@@ -40,4 +45,19 @@ Hilfreicher Zusatz: „Ändere nur diese eine Sache und erkläre danach, welche 
 
 Mit Node.js (ab Version 18): `node --test tests/core.test.mjs`
 
-Die Anwendung selbst benötigt Node.js nicht. Für eine statische Veröffentlichung werden die fünf Anwendungsdateien unverändert ins Verzeichnis `dist/` kopiert.
+Die Anwendung selbst benötigt Node.js nicht.
+
+## GitHub Pages
+
+In **Settings → Pages** als Quelle **Deploy from a branch**, Branch **main**, Ordner **/ (root)** wählen. Kein Build nötig.
+
+- Spieleübersicht: https://ghalmets.github.io/webdevprojects/
+- Pony Sprint: https://ghalmets.github.io/webdevprojects/ponyrennen/
+
+## Ein weiteres Spiel hinzufügen
+
+1. Einen neuen Ordner anlegen, zum Beispiel `weltraumspiel/`.
+2. Die `index.html`, CSS- und JavaScript-Dateien dieses Spiels darin ablegen.
+3. Auf der Startseite im Hauptverzeichnis einen weiteren Link zu `./weltraumspiel/` ergänzen.
+
+Links und Dateien relativ einbinden, etwa `./style.css`, damit sie unter dem Repository-Pfad funktionieren. Die Pages-Einstellung bleibt unverändert.

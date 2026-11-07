@@ -1,17 +1,53 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f6ed"><title>Pony Sprint · Dein kleines Pferdeabenteuer</title><link rel="stylesheet" href="style.css"></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6ef">
+  <title>Unsere Spielewerkstatt</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f7f6ef; color: #29443a; font-family: system-ui, sans-serif; }
+    main { max-width: 960px; margin: auto; padding: 64px 24px; }
+    .eyebrow { color: #657e54; font-size: 12px; font-weight: 700; letter-spacing: 2px; }
+    h1 { font-size: clamp(36px, 7vw, 64px); line-height: 1.1; letter-spacing: -2px; margin: 22px 0; }
+    .intro { color: #71816d; line-height: 1.7; max-width: 540px; }
+    .games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 24px; margin: 40px 0; }
+    .game { display: block; overflow: hidden; border: 1px solid #dce1cf; border-radius: 20px; background: #fff; color: inherit; text-decoration: none; box-shadow: 0 10px 30px #29443a08; }
+    .game:hover { border-color: #7f9858; }
+    .game:focus-visible, footer a:focus-visible { outline: 3px solid #d59744; outline-offset: 5px; }
+    .illustration { display: grid; place-items: center; height: 190px; background: #e1eabf; font-size: 86px; }
+    .details { padding: 25px; }
+    .badge { color: #738955; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    h2 { font-size: 27px; margin: 12px 0; letter-spacing: -.7px; }
+    .details p { color: #71816d; font-size: 14px; line-height: 1.7; }
+    .play { display: inline-block; background: #39745b; color: white; padding: 12px 20px; border-radius: 9px; font-size: 14px; font-weight: 600; margin-top: 8px; }
+    .note { border-radius: 14px; padding: 22px; background: #edf0e2; color: #657c57; font-size: 14px; line-height: 1.7; }
+    footer { margin-top: 40px; padding-top: 22px; border-top: 1px solid #dce1cf; color: #71816d; font-size: 12px; }
+    footer a { color: #39745b; }
+    @media (max-width: 600px) { main { padding: 40px 20px; } }
+  </style>
+</head>
 <body>
-<header class="topbar"><a class="brand" href="./"><span class="brand-icon">♞</span> Pony Sprint<span class="tag">SPIELEN. TÜFTELN. LOSREITEN.</span></a><a href="#werkstatt" class="workshop-link">✳ Pony-Werkstatt <span>↗</span></a></header>
-<main>
-<section class="intro"><div><div class="eyebrow"><span></span> EIN KLEINES ABENTEUER FÜR GROSSE IDEEN</div><h1>Auf die Hufe,<br><em>fertig, los!</em></h1><p>Der Wind in der Mähne, die Sterne im Blick.<br>Lenke dein Pony durch die Wiese und sammle Glück.</p></div><div class="intro-note"><span class="little-star">✦</span><p>Dein Pony.<br>Dein Rennen.<br><strong>Deine Ideen.</strong></p><svg viewBox="0 0 100 40" aria-hidden="true"><path d="M5 6 Q70 0 77 30 M65 23 L78 33 86 18"/></svg></div></section>
-<section class="game-card" aria-label="Pferderennspiel">
-<div class="game-bar"><div class="pony-id"><span class="pony-dot"></span><strong id="pony-label">Flocke</strong><span class="divider">/</span><span>Wiesenabenteuer</span></div><div class="stats"><span title="Gesammelte Punkte">✦ <b id="score">0</b></span><span id="lives" aria-label="3 Herzen">♥ ♥ ♥</span><span class="timer">◷ <b id="time">60</b><small>s</small></span><button id="pause" class="icon-button" aria-label="Spiel pausieren" disabled>Ⅱ</button></div></div>
-<div class="playfield"><canvas id="game" width="1000" height="460" aria-label="Spielfeld. Mit Pfeil hoch und runter oder W und S steuern."></canvas><div id="overlay" class="overlay"><div class="overlay-inner"><span class="pill" id="overlay-tag">DEIN WIESENABENTEUER WARTET</span><h2 id="overlay-title">Bereit für einen Ausritt?</h2><p id="overlay-text">Sammle Sterne. Weiche Hindernissen aus.<br>Und galoppiere deinem Rekord entgegen!</p><button class="primary" id="start">Losreiten <span>→</span></button><span class="overlay-hint" id="overlay-hint">60 Sekunden · 3 Herzen · jede Menge Spaß</span></div></div><div class="field-caption"><span>✿ SONNENWIESE</span><span id="best">REKORD 0</span></div></div>
-<div class="game-footer"><div class="keyboard-hint"><kbd>↑</kbd><kbd>↓</kbd><span>oder <b>W / S</b> zum Lenken</span></div><p>✦ Sterne sammeln <span>·</span> Hindernissen ausweichen</p><div class="touch-controls"><button id="up" aria-label="Nach oben lenken">↑</button><button id="down" aria-label="Nach unten lenken">↓</button></div></div>
-</section>
-<section class="below"><article class="how"><span class="section-number">01 / SO GEHT’S</span><h2>Kleine Steuerung.<br>Großes Abenteuer.</h2><div class="tip"><span class="tip-icon star">✦</span><div><h3>Sterne schnappen</h3><p>Jeder Stern bringt dir 10 Punkte.</p></div></div><div class="tip"><span class="tip-icon log">▰</span><div><h3>Den Weg freihalten</h3><p>Lenke an Baumstämmen und Steinen vorbei.</p></div></div><div class="tip"><span class="tip-icon heart">♡</span><div><h3>Einfach nochmal versuchen</h3><p>Drei Herzen, viele Chancen. Du schaffst das!</p></div></div></article>
-<article id="werkstatt" class="workshop"><div class="workshop-top"><span class="section-number">02 / MACH’S ZU DEINEM SPIEL</span><span class="tiny-flower">✳</span></div><h2>Die Pony-Werkstatt</h2><p>Ein bisschen tüfteln. Und schon ist es dein Abenteuer.</p><div class="settings-grid"><label>Wie heißt dein Pony?<input id="pony-name" maxlength="20" value="Flocke" autocomplete="off"></label><fieldset><legend>Deine Lieblingsfarbe</legend><div class="swatches"><button class="swatch active" data-color="#ad7657" style="--swatch:#ad7657" aria-label="Braunes Pony" aria-pressed="true"></button><button class="swatch" data-color="#e5d5b7" style="--swatch:#e5d5b7" aria-label="Cremefarbenes Pony" aria-pressed="false"></button><button class="swatch" data-color="#77768c" style="--swatch:#77768c" aria-label="Graues Pony" aria-pressed="false"></button><button class="swatch" data-color="#d9a0b1" style="--swatch:#d9a0b1" aria-label="Rosafarbenes Pony" aria-pressed="false"></button></div></fieldset><label>Dein Tempo <span id="speed-label">Gemütlich</span><input type="range" id="speed" min="1" max="3" step="1" value="1"><div class="range-labels"><small>Ganz entspannt</small><small>Hui, schnell!</small></div></label></div><div class="coding-note"><span>⌘</span><p><strong>Aus einer Idee wird dein Spiel.</strong><br>Frag ChatGPT zum Beispiel: „Mach aus den Sternen Karotten!“</p></div></article></section>
-<footer><span>♞ Pony Sprint</span><p>Mit Fantasie gebaut. Zum Weiterträumen gemacht.</p><a href="https://github.com/ghalmets/webdevprojects" target="_blank" rel="noopener noreferrer">Zum Code ↗</a></footer>
-</main><script type="module" src="game.mjs"></script>
-</body></html>
+  <main>
+    <div class="eyebrow">SPIELEN · TÜFTELN · SELBER MACHEN</div>
+    <h1>Unsere Spielewerkstatt</h1>
+    <p class="intro">Kleine Spiele, große Ideen. Such dir ein Abenteuer aus – und überlege danach, was du daran verändern möchtest!</p>
+    <section class="games" aria-label="Unsere Spiele">
+      <!-- Neue Spiele bekommen einen eigenen Ordner und hier einen weiteren Link. -->
+      <a class="game" href="./ponyrennen/">
+        <div class="illustration" aria-hidden="true">🐎</div>
+        <div class="details">
+          <span class="badge">PFERDERENNSPIEL · AB 1 SPIELER</span>
+          <h2>Pony Sprint</h2>
+          <p>Galoppiere durch die Sonnenwiese, sammle Sterne und weiche Hindernissen aus. Dein Pony wartet schon!</p>
+          <p>↑ / ↓ oder W / S · Bildschirmtasten fürs Handy</p>
+          <span class="play">Jetzt losreiten →</span>
+        </div>
+      </a>
+    </section>
+    <aside class="note"><strong>Platz für eure nächste Idee.</strong><br>Ob Weltraumreise oder Drachenabenteuer: Neue Spiele bekommen hier ihren eigenen Platz.</aside>
+    <footer>Mit Fantasie gebaut. Zum Weiterträumen gemacht. · <a href="https://github.com/ghalmets/webdevprojects">Zum Quellcode ↗</a></footer>
+  </main>
+</body>
+</html>

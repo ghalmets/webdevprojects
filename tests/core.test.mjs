@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clamp, overlaps, SETTINGS, TRACK } from '../core.mjs';
+import { clamp, overlaps, SETTINGS, TRACK } from '../ponyrennen/core.mjs';
 test('Pony bleibt am oberen und unteren Wiesenrand',()=>{
  assert.equal(clamp(-100,TRACK.top,TRACK.bottom),TRACK.top);
  assert.equal(clamp(999,TRACK.top,TRACK.bottom),TRACK.bottom);

@@ -92,7 +92,7 @@ Drittes Spiel unter https://ghalmets.github.io/webdevprojects/handball/ – ein 
 - Bewegen: Pfeiltasten oder W A S D, am Handy linkes Steuerkreuz.
 - Zweites Bedienelement: oben Schießen (Leertaste), darunter Passen (E); Haken (H) als zusätzliche Taste.
 - Mit Ball nach rechts in die gelbe Wurfzone laufen und außerhalb des Torraums werfen.
-- Passen wechselt zur freien Mitspielperson. Haken versetzt die Figur seitlich und kurz an der Abwehr vorbei.
+- Passen wechselt zur freien Mitspielperson. Haken funktioniert nur nah vor einer Gegnerin: ein kurzer animierter Seitenschritt (höchstens 56 Pixel), keine freien Sprünge. Weiße Einhörner mit bunten Hörnern spielen gegen die schwarz-rote Mädchenmannschaft.
 - Die Mädchenmannschaft spielt gegen drei Einhörner im Gegenangriff. Nach deinem Wurf laufen sie nach links aufs Tor, wechseln per Pass die Werferin und schießen schneller. Als Torhüterin mit ↑ / ↓ reagieren: Zielhinweis erst 0,45 Sekunden vor Abwurf, kleinere Haltereichweite.
 - 90 Sekunden pro Partie; Pause mit P / Escape oder Pausentaste.
 - `handball/regeln.mjs`: Spielzeit, Tempo, Passauswahl und Torwart-Reichweite. `spiel.mjs`: Spielablauf und Zeichnung.

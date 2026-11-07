@@ -1,22 +1,32 @@
-import {SETTINGS,clamp,canShoot,saveAt,passTarget,counterPosition} from './regeln.mjs?v=schwarzrot-3';
+import {SETTINGS,clamp,canShoot,saveAt,passTarget,counterPosition,hookTarget} from './regeln.mjs?v=haken-4';
 const $=id=>document.getElementById(id),ctx=$('game').getContext('2d');
-const keys=new Set();let mode='ready',phase='attack',home=0,away=0,remaining=SETTINGS.seconds,time=0,active=0,hookTimer=0,grace=0,lastDirection=1,phaseTime=0,shot=null,keeperY=260,targetY=260,players=[],defenders=[],runners=[],thrower=0;
+const keys=new Set();let mode='ready',phase='attack',home=0,away=0,remaining=SETTINGS.seconds,time=0,active=0,hookTimer=0,grace=0,lastDirection=1,phaseTime=0,shot=null,keeperY=260,targetY=260,players=[],defenders=[],runners=[],thrower=0,hookMove=null;
 function say(text){$('message').textContent=text;}
 function hud(){$('home').textContent=home;$('away').textContent=away;$('clock').textContent=`${Math.ceil(remaining)} s`;const disabled=mode!=='playing'||phase!=='attack';$('shoot').disabled=disabled;$('pass').disabled=disabled;$('hook').disabled=disabled||hookTimer>0;}
-function attack(){phase='attack';active=0;players=[{x:180,y:260},{x:340,y:145},{x:390,y:385}];defenders=[{x:490,y:220},{x:625,y:340},{x:735,y:230}];shot=null;grace=1;phaseTime=0;hookTimer=0;say('Dein Angriff! Laufe nach rechts zur gelben Wurfzone. Mit einem Haken kommst du vorbei.');hud();}
+function attack(){phase='attack';active=0;players=[{x:180,y:260},{x:340,y:145},{x:390,y:385}];defenders=[{x:490,y:220},{x:625,y:340},{x:735,y:230}];shot=null;grace=1;phaseTime=0;hookTimer=0;hookMove=null;say('Dein Angriff! Laufe nach rechts zur gelben Wurfzone. Mit einem Haken kommst du vorbei.');hud();}
 function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent='Ⅱ';hud();return;}home=0;away=0;remaining=SETTINGS.seconds;time=0;keys.clear();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;attack();}
 function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;mode='paused';keys.clear();$('pause').textContent='▶';$('tag').textContent='KURZE AUSZEIT';$('title').textContent='Durchatmen, Team!';$('description').textContent='Der Spielstand bleibt erhalten. Gleich geht’s weiter.';$('start').textContent='Weiterspielen →';$('overlay').hidden=false;hud();}
 function finish(){mode='finished';keys.clear();$('pause').disabled=true;$('tag').textContent='ABPFIFF · GUT GESPIELT!';$('title').textContent=home>away?'Sieg für UHC Tulln!':home===away?'Ein spannendes Unentschieden!':'Die Einhörner gewinnen diese Runde.';$('description').textContent=`${home} : ${away} – Danke fürs faire Spiel! Beim nächsten Anpfiff warten neue Chancen.`;$('start').textContent='Revanche →';$('overlay').hidden=false;$('start').focus({preventScroll:true});hud();}
-function shoot(){if(mode!=='playing'||phase!=='attack')return;const p=players[active];if(!canShoot(p)){say('Noch zu weit weg! Laufe nach rechts in die gelbe Wurfzone.');return;}phase='shot';shot={x:p.x,y:p.y,target:clamp(p.y,185,335),startX:p.x,startY:p.y};say('Wurf aufs Tor!');hud();}
-function pass(){if(mode!=='playing'||phase!=='attack')return;const previous=active;active=passTarget(players,active,defenders);grace=.8;say(`Pass von Nummer ${previous+1} zu Nummer ${active+1}! Du steuerst jetzt die gelb markierte Spielerin.`);}
-function hook(){if(mode!=='playing'||phase!=='attack'||hookTimer>0)return;const p=players[active];let dy=Number(keys.has('ArrowDown')||keys.has('s'))-Number(keys.has('ArrowUp')||keys.has('w'));if(!dy)dy=p.y>260?-1:1;p.y=clamp(p.y+dy*SETTINGS.hookDistance,90,430);p.x=clamp(p.x+35,80,825);grace=.85;hookTimer=SETTINGS.hookCooldown;say('Starker Haken! Jetzt bist du kurz an den Einhörnern vorbei.');hud();}
+function shoot(){if(mode!=='playing'||phase!=='attack'||hookMove)return;const p=players[active];if(!canShoot(p)){say('Noch zu weit weg! Laufe nach rechts in die gelbe Wurfzone.');return;}phase='shot';shot={x:p.x,y:p.y,target:clamp(p.y,185,335),startX:p.x,startY:p.y};say('Wurf aufs Tor!');hud();}
+function pass(){if(mode!=='playing'||phase!=='attack'||hookMove)return;const previous=active;active=passTarget(players,active,defenders);grace=.8;say(`Pass von Nummer ${previous+1} zu Nummer ${active+1}! Du steuerst jetzt die gelb markierte Spielerin.`);}
+function hook(){
+ if(mode!=='playing'||phase!=='attack'||hookTimer>0||hookMove)return;
+ const p=players[active];
+ const side=Number(keys.has('ArrowDown')||keys.has('s')||keys.has('ArrowRight')||keys.has('d'))-Number(keys.has('ArrowUp')||keys.has('w')||keys.has('ArrowLeft')||keys.has('a'));
+ const target=hookTarget(p,defenders,side);
+ if(!target){say('Für einen Haken musst du nah vor einer Gegnerin stehen. Dann weichst du nur ein kleines Stück seitlich aus.');return;}
+ hookMove={index:active,from:{x:p.x,y:p.y},target,elapsed:0};
+ grace=.4;hookTimer=SETTINGS.hookCooldown;say('Kurzer Haken neben die Gegnerin! Jetzt weiterlaufen oder passen.');hud();
+}
 function goalkeeping(){phase='keeper';phaseTime=0;keeperY=260;targetY=185+Math.random()*150;shot=null;runners=[0,1,2].map(i=>counterPosition(0,i));thrower=0;say('Gegenangriff! Die Einhörner laufen aufs linke Tor zu. Du bist die Torhüterin – achte auf den späten Wurfhinweis!');hud();}
 function result(text){phase='result';phaseTime=0;say(text);hud();}
 function update(dt){if(mode!=='playing')return;time+=dt;remaining=Math.max(0,remaining-dt);hookTimer=Math.max(0,hookTimer-dt);grace=Math.max(0,grace-dt);phaseTime+=dt;
  const dx=Number(keys.has('ArrowRight')||keys.has('d'))-Number(keys.has('ArrowLeft')||keys.has('a'));
  const dy=Number(keys.has('ArrowDown')||keys.has('s'))-Number(keys.has('ArrowUp')||keys.has('w'));
  if(phase==='attack'){
-  const p=players[active],norm=Math.hypot(dx,dy)||1;p.x=clamp(p.x+dx/norm*SETTINGS.runSpeed*dt,80,825);p.y=clamp(p.y+dy/norm*SETTINGS.runSpeed*dt,90,430);if(dy&&dy!==lastDirection){if(grace===0)grace=.2;lastDirection=dy;}
+  const p=players[active],norm=Math.hypot(dx,dy)||1;
+  if(hookMove){hookMove.elapsed+=dt;const t=Math.min(1,hookMove.elapsed/.16);p.x=hookMove.from.x+(hookMove.target.x-hookMove.from.x)*t;p.y=hookMove.from.y+(hookMove.target.y-hookMove.from.y)*t;if(t===1)hookMove=null;}
+  else{p.x=clamp(p.x+dx/norm*SETTINGS.runSpeed*dt,80,825);p.y=clamp(p.y+dy/norm*SETTINGS.runSpeed*dt,90,430);}if(dy&&dy!==lastDirection){if(grace===0)grace=.2;lastDirection=dy;}
   players.forEach((mate,i)=>{if(i!==active){mate.x=clamp(p.x+125+(i%2)*35,150,805);mate.y=i%2?135:385;}});
   defenders.forEach((d,i)=>{d.y=clamp(d.y+(p.y-d.y)*dt*(.38+i*.08),95,425);d.x=490+i*120+Math.sin(time+i)*15;});
   if(grace===0&&defenders.some(d=>Math.hypot(d.x-p.x,d.y-p.y)<34)){p.x=Math.max(90,p.x-70);grace=1.2;say('Ein Einhorn versperrt den Weg. Versuch einen Pass oder einen Haken!');}
@@ -40,12 +50,12 @@ function update(dt){if(mode!=='playing')return;time+=dt;remaining=Math.max(0,rem
 }
 function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
 function line(points,c,w=3){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.lineCap='round';ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();}
-function athlete(p,unicorn=false,number=1,selected=false){ctx.save();ctx.translate(p.x,p.y);ellipse(0,9,19,7,'#123b3b25');if(selected){ctx.strokeStyle='#f5d066';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,0,27,32,0,0,Math.PI*2);ctx.stroke();}line([[-6,6],[-10,20]],'#191b21',6);line([[6,6],[10,20]],'#191b21',6);ctx.fillStyle=unicorn?'#191b21':'#d52d3d';ctx.fillRect(-13,-21,26,32);if(!unicorn){ctx.fillStyle='#191b21';ctx.fillRect(-13,-21,7,32);ctx.fillRect(6,-21,7,32);}ellipse(0,-29,13,14,unicorn?'#303139':'#eecba5');if(unicorn){line([[0,-42],[3,-57]],'#edc974',6);line([[-8,-38],[-15,-44]],'#111218',5);}else{
+function athlete(p,unicorn=false,number=1,selected=false){ctx.save();ctx.translate(p.x,p.y);ellipse(0,9,19,7,'#123b3b25');if(selected){ctx.strokeStyle='#f5d066';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(0,0,27,32,0,0,Math.PI*2);ctx.stroke();}line([[-6,6],[-10,20]],'#191b21',6);line([[6,6],[10,20]],'#191b21',6);ctx.fillStyle=unicorn?'#fffdf5':'#d52d3d';ctx.fillRect(-13,-21,26,32);if(!unicorn){ctx.fillStyle='#191b21';ctx.fillRect(-13,-21,7,32);ctx.fillRect(6,-21,7,32);}ellipse(0,-29,13,14,unicorn?'#fffdf5':'#eecba5');if(unicorn){line([[0,-42],[1,-47]],'#e98eb5',6);line([[1,-47],[2,-52]],'#8fcbd3',5);line([[2,-52],[3,-57]],'#b3a0e6',4);line([[-8,-38],[-15,-44]],'#c48ed2',5);}else{
  const hair=['#665146','#a57243','#4e3945'][number%3];
  ellipse(0,-40,12,6,hair);
  ellipse(15,-36,9,7,hair);line([[19,-34],[26,-25],[22,-14]],hair,7);
  ellipse(13,-37,3,3,'#f2d27c');
- }line([[-14,-15],[-22,-1]],unicorn?'#303139':'#eecba5',5);line([[14,-15],[22,-1]],unicorn?'#303139':'#eecba5',5);ctx.fillStyle='white';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText(number,0,1);ctx.restore();}
+ }line([[-14,-15],[-22,-1]],unicorn?'#fffdf5':'#eecba5',5);line([[14,-15],[22,-1]],unicorn?'#fffdf5':'#eecba5',5);ctx.fillStyle=unicorn?'#665175':'white';ctx.font='bold 13px system-ui';ctx.textAlign='center';ctx.fillText(number,0,1);ctx.restore();}
 function draw(){ctx.fillStyle='#d1b18a';ctx.fillRect(0,0,1000,520);for(let x=0;x<1000;x+=80){ctx.fillStyle=x%160?'#ffffff06':'#00000003';ctx.fillRect(x,0,80,520);}ctx.fillStyle='#438d92';ctx.fillRect(50,65,900,390);ctx.fillStyle='#4b9698';ctx.fillRect(500,65,450,390);
  const keeping=phase==='keeper'||phase==='result';ctx.fillStyle='#eed67e55';ctx.fillRect(650,90,175,340);ctx.strokeStyle='#f2efe0';ctx.lineWidth=3;ctx.strokeRect(50,65,900,390);line([[500,65],[500,455]],'#f2efe0',2);ctx.beginPath();ctx.arc(500,260,47,0,Math.PI*2);ctx.stroke();
  // Torräume und Netze.

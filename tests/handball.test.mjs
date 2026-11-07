@@ -12,3 +12,14 @@ test('Laufen, Haken, Pass, eigener Schuss und Torwartwechsel',()=>{
  run('goalkeeping();targetY=340;keeperY=175;for(let i=0;i<100;i++)update(.04)');assert.equal(run('away'),1);
  run('pause();update(1)');assert.equal(run('mode'),'paused');run('start();remaining=.01;update(.02);draw()');assert.equal(run('mode'),'finished');run('start()');assert.equal(run('home'),0);assert.equal(run('away'),0);
 });
+test('Gegenangriff läuft zum Tor, wechselt Werferin und wirft erst nach dem Anlauf',()=>{
+ const run=game();run('start();goalkeeping()');const initial=run('runners[0].x');
+ run('update(.5);draw()');assert.ok(run('runners[0].x')<initial);assert.equal(run('shot'),null);
+ run('update(.8)');assert.equal(run('thrower'),1);assert.equal(run('shot'),null);
+ run('update(1)');assert.equal(run('shot'),null);
+ run('update(.31);draw()');assert.ok(run('shot'));assert.ok(run('shot.x')<run('runners[1].x'));
+ assert.ok(rules.SETTINGS.counterThrowSpeed>400);
+ assert.ok(rules.SETTINGS.counterWarningSeconds<1);
+ assert.ok(!rules.saveAt(260,295,rules.SETTINGS.keeperReach));
+ assert.ok(rules.saveAt(260,280,rules.SETTINGS.keeperReach));
+});

@@ -1,4 +1,4 @@
-export const SETTINGS={worldHeight:6000,carRadius:19,acceleration:300,forwardSpeed:390,reverseSpeed:170,friction:110,steering:2.2};
+export const SETTINGS={worldHeight:6000,carRadius:19,acceleration:300,forwardSpeed:390,reverseSpeed:170,friction:110,steering:2.9};
 export const START={x:500,y:5820,angle:-Math.PI/2,speed:0};
 export const CHECKPOINTS=Array.from({length:6},(_,i)=>({x:500,y:START.y-i*1000}));
 export const VAMPIRE_COUNT=6;
@@ -17,7 +17,12 @@ export function stepCar(car,input,dt){
  if(input.gas&&!input.reverse)speed=Math.min(SETTINGS.forwardSpeed,speed+SETTINGS.acceleration*dt);
  else if(input.reverse&&!input.gas)speed=Math.max(-SETTINGS.reverseSpeed,speed-SETTINGS.acceleration*dt);
  else speed=Math.sign(speed)*Math.max(0,Math.abs(speed)-SETTINGS.friction*dt);
- const steering=(Number(Boolean(input.right))-Number(Boolean(input.left)))*SETTINGS.steering*Math.min(1,Math.abs(speed)/65)*Math.sign(speed);
+ // Beim Anfahren sofort reagieren; bei hohem Tempo weniger leicht übersteuern.
+ const turnInput=Number(Boolean(input.right))-Number(Boolean(input.left));
+ const speedRatio=Math.min(1,Math.abs(speed)/SETTINGS.forwardSpeed);
+ const turnRate=SETTINGS.steering-speedRatio*1.2;
+ const lowSpeedAssist=.65+.35*Math.min(1,Math.abs(speed)/35);
+ const steering=turnInput*turnRate*lowSpeedAssist*(speed<0?-1:1);
  const angle=car.angle+steering*dt;
  const x=Math.max(209,Math.min(791,car.x+Math.cos(angle)*speed*dt));
  const y=Math.max(70,Math.min(SETTINGS.worldHeight-80,car.y+Math.sin(angle)*speed*dt));

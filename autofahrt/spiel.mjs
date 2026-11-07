@@ -1,4 +1,4 @@
-import {SETTINGS,START,CHECKPOINTS,OBSTACLES,VAMPIRE_COUNT,hitsObstacle,stepCar,vampirePosition} from './regeln.mjs?v=rallye-2';
+import {SETTINGS,START,CHECKPOINTS,OBSTACLES,VAMPIRE_COUNT,hitsObstacle,stepCar,vampirePosition} from './regeln.mjs?v=lenkung-3';
 const $=id=>document.getElementById(id),ctx=$('game').getContext('2d');
 const keys=new Set();let mode='ready',car={...START},time=0,camera=START.y-360,checkpoint=0,stopTime=0,protection=0,messageTime=0;
 function say(text){$('message').textContent=text;messageTime=4;}
@@ -11,7 +11,7 @@ function update(dt){if(mode!=='playing')return;time+=dt;messageTime=Math.max(0,m
  if(stopTime>0){stopTime=Math.max(0,stopTime-dt);car.speed=0;}else{
  const input={gas:keys.has('ArrowUp')||keys.has('w'),reverse:keys.has('ArrowDown')||keys.has('s'),left:keys.has('ArrowLeft')||keys.has('a'),right:keys.has('ArrowRight')||keys.has('d')};
  const next=stepCar(car,input,dt);
- if(hitsObstacle(next.x,next.y)){car.speed=0;if(messageTime===0)say('Eine Kiste ist im Weg! Mit ↓ zurückfahren und neu einlenken.');}else car=next;
+ if(hitsObstacle(next.x,next.y)){car.angle=next.angle;car.speed=0;if(messageTime===0)say('Eine Kiste ist im Weg! Mit ↓ zurückfahren und neu einlenken.');}else car=next;
  for(let i=0;i<VAMPIRE_COUNT;i++){const vampire=vampirePosition(time,i);if(protection===0&&Math.hypot(car.x-vampire.x,car.y-vampire.y)<39){stopTime=.8;protection=3;car.speed=0;say('Vampir: „Halt!“ Kurzer Stopp – dann kannst du weiter oder rückwärts ausweichen.');break;}}
  }
  for(let i=checkpoint+1;i<CHECKPOINTS.length;i++)if(car.y<=CHECKPOINTS[i].y){checkpoint=i;say('Fähnchen erreicht! Dein Rücksetzpunkt ist gespeichert.');}

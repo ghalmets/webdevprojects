@@ -103,7 +103,7 @@ Drittes Spiel unter https://ghalmets.github.io/webdevprojects/handball/ – ein 
 Neues Spiel: https://ghalmets.github.io/webdevprojects/autofahrt/
 
 - ↑ / W: Gas. ↓ / S: bremsen und rückwärts. ← / → oder A / D: lenken.
-- Am Handy dieselben vier Bildschirmtasten gedrückt halten; Gas und Lenken gleichzeitig sind möglich.
+- Am Handy links die beiden Lenktasten und rechts Gas/Rückwärts gedrückt halten; beides gleichzeitig ist möglich. Die Lenkung reagiert auch im Stand und ist bei hohem Tempo ruhiger.
 - Fahrzeugphysik mit Beschleunigung, Ausrollen und umgekehrter Lenkrichtung beim Rückwärtsfahren.
 - Längere Strecke mit über 5 km, 17 Hindernissen und sechs schnelleren patrouillierenden Vampiren. Höchsttempo 50 % höher; stärkere Beschleunigung und schnellere Lenkung. Vampire stoppen das Auto kurz; anschließend gibt es eine Schutzzeit zum Weiterfahren.
 - Grüne Fähnchen speichern den Fortschritt. R oder „Zum Fähnchen“ setzt das Auto frei auf die Straße.

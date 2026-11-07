@@ -25,3 +25,11 @@ test('Lange Rallye bleibt vollständig befahrbar und innerhalb der Weltgrenzen',
  let car={...rules.START};for(let i=0;i<1000;i++)car=rules.stepCar(car,{reverse:true},.04);
  assert.ok(car.y<=rules.SETTINGS.worldHeight-80);assert.ok(Number.isFinite(car.y));
 });
+test('Lenken reagiert im Stand und bei langsamer Fahrt ohne bei hohem Tempo zu übersteuern',()=>{
+ const stationary=rules.stepCar({...rules.START},{left:true},.1);assert.ok(stationary.angle<rules.START.angle);assert.equal(stationary.x,rules.START.x);assert.equal(stationary.y,rules.START.y);
+ const slow=rules.stepCar({...rules.START,speed:35},{gas:true,right:true},.1);
+ const fast=rules.stepCar({...rules.START,speed:390},{gas:true,right:true},.1);
+ assert.ok(slow.angle>rules.START.angle);assert.ok(fast.angle>rules.START.angle);
+ assert.ok(slow.angle-rules.START.angle>fast.angle-rules.START.angle);
+ const straight=rules.stepCar({...rules.START},{left:true,right:true},.1);assert.equal(straight.angle,rules.START.angle);
+});

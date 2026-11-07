@@ -130,7 +130,7 @@ function frame(now) { const dt=last?Math.min((now-last)/1000,.05):0;last=now;upd
 requestAnimationFrame(frame);
 $('start').addEventListener('click',start);$('pause').addEventListener('click',pause);
 window.addEventListener('keydown',e=>{
- if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName))return;
+ if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
  const key=e.key.length===1?e.key.toLowerCase():e.key;
  if(['ArrowUp','ArrowDown','w','s'].includes(key)){if(mode==='playing'){e.preventDefault();keys.add(key);}}
  if((key==='p'||key==='Escape')&&!e.repeat)pause();

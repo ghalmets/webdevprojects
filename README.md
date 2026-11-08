@@ -203,3 +203,7 @@ Aktuelle Spielfiguren: Lea, Luna, Lilly und Hanna ersetzen Lotta vollständig. A
 Lokaler Mehrspielermodus für 1–4 echte Mitspielende am selben Gerät. Jede Person wählt eine eigene Freundin (Lea, Luna, Lilly oder Hanna); doppelte Figuren werden beim Auswählen getauscht. Im Mehrspielermodus bestätigt jede Person selbst „Bereit“, erst danach kann das Spiel starten. Keine Computersteuerung und kein Netzwerkmodus.
 
 Alle spielen gleichzeitig: Person 1 mit Pfeiltasten, Person 2 mit WASD, Person 3 mit IJKL und Person 4 mit TFGH. Auf Touchscreens hat jede Person ein eigenes Pfeilfeld mit Mehrfingerbedienung. Jede Figur bekommt ihre eigene Kamera und drei eigene Leben pro Kapitel. Sammelobjekte, Schlüssel und Gespräche werden gemeinsam erledigt. An Tor, Falltür, Leiter und zu Hause wartet man aufeinander. Sind die drei Leben einer Figur verbraucht, wiederholt die Gruppe das Kapitel. Gespräche und Pause stoppen alle Ansichten.
+
+### Fünf nummerierte Spielfiguren
+
+Die Figuren heißen nun Person 1, Person 2, Person 3, Person 4 und Person 5. Person 5 ist ein Baby mit hellblauem Body und Schnuller. Der lokale Mehrspielermodus unterstützt bis zu fünf echte Mitspielende, jede mit eigener Ansicht und Steuerung. Bei fünf Personen werden fünf einzelne Bereitschaftsbestätigungen benötigt. Das fünfte Tastenfeld nutzt 8 (vorwärts/steigen), 4 (links), 5 (zurück/sinken) und 6 (rechts); auch ein eigenes Touch-Pfeilfeld ist vorhanden.

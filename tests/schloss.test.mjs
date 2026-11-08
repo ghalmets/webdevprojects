@@ -109,18 +109,18 @@ test('Flug bewegt Lotta automatisch vorwärts, Höhensteuerung und Lufttreffer f
  run('player={x:2440,y:400};vampires=[];update(0);update(2);draw()');assert.equal(run('flightHeight'),0);assert.equal(run('mode'),'finished');
 });
 
-test('Lea, Luna, Lilly und Hanna haben eigene Figuren und erscheinen in Gesprächen',()=>{
- assert.deepEqual(Object.keys(rules.AVATARS),['lea','luna','lilly','hanna']);assert.equal(new Set(Object.values(rules.AVATARS).map(a=>a.dress)).size,4);
+test('Person 1 bis Person 5 haben eigene Figuren und erscheinen in Gesprächen',()=>{
+ assert.deepEqual(Object.keys(rules.AVATARS),['lea','luna','lilly','hanna','baby']);assert.equal(new Set(Object.values(rules.AVATARS).map(a=>a.dress)).size,5);
  for(const [id,person] of Object.entries(rules.AVATARS)){
   const run=game();run(`chooseLotta('${id}');start();beginTalk({name:'Vampirinchen',boss:false})`);assert.equal(run('selectedLotta'),id);assert.ok(run('$("reply-one").textContent').includes(person.name));assert.ok(run('$("talk-thought").textContent').includes(person.name));
   run('reply(0);reply(0);chapter=4;setup();mode="playing";vampires=[];player={x:2440,y:400};update(0);update(2)');assert.equal(run('selectedLotta'),id);assert.ok(run('$("title").textContent').includes(person.name));
  }
- const run=game();run('start();beginTalk({name:"Vampir"});chooseLotta("hanna")');assert.ok(run('$("reply-one").textContent').includes('Hanna'));assert.ok(!run('$("reply-one").textContent').includes('Lea'));
+ const run=game();run('start();beginTalk({name:"Vampir"});chooseLotta("hanna")');assert.ok(run('$("reply-one").textContent').includes('Person 4'));assert.ok(!run('$("reply-one").textContent').includes('Person 1'));
 });
 
 test('Lokale Gruppe benötigt für jede Person eine eigene Bereitschaft und eindeutige Figur',()=>{
  const run=game();
- for(const count of [1,2,3,4]){
+ for(const count of [1,2,3,4,5]){
   run(`mode='ready';setPartyCount(${count});start()`);
   assert.equal(run('party.length'),count);
   assert.equal(run('mode'),count===1?'playing':'ready');
@@ -166,6 +166,24 @@ test('Gemeinsamer Heimflug endet erst, wenn jede selbst gesteuerte Figur gelande
 
 test('Vor dem Obervampir wartet die Gruppe aufeinander und bekommt gemeinsam Flügel',()=>{
  const run=game();run("setPartyCount(2);party.forEach((_,i)=>confirmPlayer(i));start();chapter=3;setup();mode='playing';vampires.forEach(v=>v.passed=true);score=gems.length;party[0].state.player={x:current().width-210,y:350};heldKeys.add('ArrowUp');update(0)");assert.equal(run('mode'),'playing');assert.equal(run('party[0].waiting'),'tower');
- run("heldKeys.clear();party[1].state.player={x:current().width-210,y:350};heldKeys.add('w');update(0)");assert.equal(run('mode'),'talk');assert.ok(run('$("talk-text").textContent').includes('Luna'));
+ run("heldKeys.clear();party[1].state.player={x:current().width-210,y:350};heldKeys.add('w');update(0)");assert.equal(run('mode'),'talk');assert.ok(run('$("talk-text").textContent').includes('Person 2'));
  run('reply(0);reply(0)');assert.equal(run('mode'),'chapter');assert.ok(run('wings'));run('start()');assert.equal(run('chapter'),4);assert.ok(run('party.every(p=>!p.waiting&&p.state.flightHeight>0)'));
+});
+
+test('Fünf Personen benötigen fünf Bestätigungen; das Baby hat eine eigene unabhängige Steuerung',()=>{
+ const run=game();run('setPartyCount(5);party.slice(0,4).forEach((_,i)=>confirmPlayer(i));start()');assert.equal(run('mode'),'ready');assert.equal(run('party.length'),5);assert.equal(run('party[4].id'),'baby');
+ run('confirmPlayer(4);start();vampires=[];party.forEach(p=>p.state.player={x:150,y:330});heldKeys.add("8");update(.1);draw()');
+ assert.ok(run('party[4].state.player.x')>150);for(let i=0;i<4;i++)assert.equal(run(`party[${i}].state.player.x`),150);
+ run('heldKeys.clear();heldKeys.add("4");update(.1)');assert.ok(run('party[4].state.player.y')<330);
+ run('heldKeys.clear();heldKeys.add("5");update(.1)');assert.equal(run('party[4].state.player.x'),150);
+ run('heldKeys.clear();heldKeys.add("6");update(.1)');assert.equal(run('party[4].state.player.y'),330);
+ assert.equal(rules.AVATARS.baby.name,'Person 5');assert.equal(rules.AVATARS.baby.outfit,'body');assert.equal(rules.AVATARS.baby.baby,true);
+ assert.deepEqual(Object.values(rules.AVATARS).map(a=>a.name),['Person 1','Person 2','Person 3','Person 4','Person 5']);
+});
+
+
+test('Auch bei fünf Personen warten Kapitelziele auf die fünfte Figur',()=>{
+ const run=game();run('setPartyCount(5);party.forEach((_,i)=>confirmPlayer(i));start();vampires=[]');assert.equal(run('new Set(party.map(p=>p.state.player.y)).size'),5);
+ run('gems.forEach(g=>g.collected=true);score=gems.length;party.slice(0,4).forEach(p=>p.state.player={x:current().width-100,y:350});update(0)');assert.equal(run('mode'),'playing');assert.ok(run('party.slice(0,4).every(p=>p.waiting==="chapter")'));
+ run('party[4].state.player={x:current().width-100,y:350};update(0)');assert.equal(run('mode'),'chapter');run('start()');assert.equal(run('party.length'),5);assert.ok(run('party.every(p=>p.state.lives===3)'));
 });

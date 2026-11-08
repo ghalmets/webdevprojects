@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=miteinander-20';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=personen-21';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=miteinander-20';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=personen-21';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -10,7 +10,8 @@ const CONTROLS=[
  {label:'Pfeiltasten ↑ ← ↓ →',keys:['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']},
  {label:'W A S D',keys:['w','a','s','d']},
  {label:'I J K L',keys:['i','j','k','l']},
- {label:'T F G H',keys:['t','f','g','h']}
+ {label:'T F G H',keys:['t','f','g','h']},
+ {label:'Ziffern 8 ↑ · 4 ← · 5 ↓ · 6 →',keys:['8','4','5','6']}
 ];
 const heldKeys=new Set();
 let party=[{id:'lea',ready:true,state:null,waiting:null}],actorIndex=0,partyGeneration=0;
@@ -18,12 +19,12 @@ function captureActor(){return {player:{...player},lives,hurtTimer,flightHeight,
 function loadActor(index){actorIndex=index;selectedLotta=party[index].id;const s=party[index].state;if(!s)return;player={...s.player};({lives,hurtTimer,flightHeight,landing,climb,bridgeDone,selectedBridge,fear}=s);}
 function saveActor(){party[actorIndex].state=captureActor();}
 function resetParty(){
- partyGeneration++;heldKeys.clear();const initial=captureActor();
- party.forEach((p,i)=>{p.waiting=null;p.state={...initial,player:{...initial.player,y:Math.max(205,Math.min(465,initial.player.y+(i-(party.length-1)/2)*35))}};});
+ partyGeneration++;heldKeys.clear();const initial=captureActor(),halfSpread=(party.length-1)*17.5,spawnY=Math.max(205+halfSpread,Math.min(465-halfSpread,initial.player.y));
+ party.forEach((p,i)=>{p.waiting=null;p.state={...initial,player:{...initial.player,y:spawnY+(i-(party.length-1)/2)*35}};});
  actorIndex=0;if(party.length>1)loadActor(0);
 }
 function setPartyCount(count){
- if(!['ready','finished'].includes(mode)||!Number.isInteger(count)||count<1||count>4)return;
+ if(!['ready','finished'].includes(mode)||!Number.isInteger(count)||count<1||count>5)return;
  const ids=Object.keys(AVATARS);party=ids.slice(0,count).map(id=>({id,ready:count===1,state:null,waiting:null}));actorIndex=0;mode='ready';chapter=0;wings=false;setup();chooseLotta(party[0].id);overlay('GEMEINSAM DURCH DIE NACHT',count===1?'Dein Abenteuer wartet!':`${count} Personen – ${count} eigene Figuren`,count===1?'Wähle deine Freundin und starte das Schlossabenteuer.':'Jede Person wählt im Auswahlfeld ihre Figur und drückt Bereit. Ihr steuert gleichzeitig am selben Gerät, sammelt gemeinsam und wartet am Kapitelziel aufeinander. Jede Ansicht gehört einer Person.','Ab in den Garten →');renderLobby();
 }
 function assignCharacter(index,id){
@@ -36,7 +37,7 @@ function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[in
 function renderLobby(){
  const editable=['ready','finished'].includes(mode);
  document.querySelectorAll('[data-count]').forEach(b=>{b.disabled=!editable;b.setAttribute('aria-pressed',String(Number(b.dataset.count)===party.length));});
- $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>Person ${i+1}</h3><img src="${AVATARS[p.id].portrait}?v=miteinander-20" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
+ $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>${AVATARS[p.id].name}</h3><img src="${AVATARS[p.id].portrait}?v=personen-21" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
  document.querySelectorAll('[data-player]').forEach(s=>s.addEventListener('change',()=>assignCharacter(Number(s.dataset.player),s.value)));
  document.querySelectorAll('[data-ready]').forEach(b=>b.addEventListener('click',()=>confirmPlayer(Number(b.dataset.ready))));
  const ready=party.filter(p=>p.ready).length;
@@ -44,7 +45,7 @@ function renderLobby(){
  if(editable)$('start').disabled=ready!==party.length;
  document.title=party.length>1?'Vampirinchen & Freundinnen':avatar().name+' & Vampirinchen';$('hero-name').textContent=party.length>1?'Freundinnen':avatar().name;$('hero-portrait').hidden=party.length>1;
  $('solo-controls').hidden=party.length!==1;$('party-controls').hidden=party.length===1;$('team-hud').hidden=party.length===1;
- $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3>Person ${i+1} · ${AVATARS[p.id].name}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${AVATARS[p.id].name}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
+ $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3>${AVATARS[p.id].name}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${AVATARS[p.id].name}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
  document.querySelectorAll('[data-party-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')heldKeys.add(button.dataset.partyKey);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>heldKeys.delete(button.dataset.partyKey));});
 }
 function teamReached(target){
@@ -55,7 +56,7 @@ function teamReached(target){
 }
 function teamHud(){
  if(party.length===1)return;
- const text=party.map((p,i)=>`${i+1} · ${AVATARS[p.id].name}: ${'♥'.repeat(p.state?.lives??3)}${p.waiting?' · wartet am Ziel':''}`).join('   |   ');if($('team-hud').textContent!==text)$('team-hud').textContent=text;
+ const text=party.map((p,i)=>`${AVATARS[p.id].name}: ${'♥'.repeat(p.state?.lives??3)}${p.waiting?' · wartet am Ziel':''}`).join('   |   ');if($('team-hud').textContent!==text)$('team-hud').textContent=text;
  if(chapter===2)$('key-choice').hidden=!party.some(p=>p.state.player.x>current().width-350);
 }
 function update(dt){
@@ -83,7 +84,7 @@ function draw(){
  if(canvas.height!==height)canvas.height=height;ctx.fillStyle='#211c38';ctx.fillRect(0,0,960,height);
  for(let i=0;i<party.length;i++){
   loadActor(i);ctx.save();ctx.translate((i%columns)*960*scale,Math.floor(i/columns)*520*scale);ctx.scale(scale,scale);ctx.beginPath();ctx.rect(0,0,960,520);ctx.clip();drawSolo();
-  ctx.fillStyle='#211b32ed';ctx.fillRect(12,108,330,34);ctx.fillStyle='#f4e5bf';ctx.font='bold 15px system-ui';ctx.textAlign='left';ctx.fillText(`Person ${i+1} · ${avatar().name} · ${'♥'.repeat(lives)}`,24,131);
+  ctx.fillStyle='#211b32ed';ctx.fillRect(12,108,330,34);ctx.fillStyle='#f4e5bf';ctx.font='bold 15px system-ui';ctx.textAlign='left';ctx.fillText(`${avatar().name} · ${'♥'.repeat(lives)}`,24,131);
   if(party[i].waiting){ctx.fillStyle='#211b32cc';ctx.fillRect(170,200,620,90);label('Ziel erreicht! Warte auf die anderen.',480,252);}
   ctx.strokeStyle='#b49ac9';ctx.lineWidth=5;ctx.strokeRect(0,0,960,520);ctx.restore();
  }
@@ -105,7 +106,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=miteinander-20';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=personen-21';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -237,7 +238,24 @@ function project(x,y){return chaseProject(x,y,player);}
 function unicornPatch(x,y,scale=1){
  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ellipse(0,0,7,4,'#bba8d5');line([[3,-1],[6,-8]],'#bba8d5',4);ellipse(8,-8,4,3,'#bba8d5');poly([[7,-11],[8,-17],[10,-11]],'#edc878');line([[-3,2],[-3,7]],'#bba8d5',2);line([[3,2],[3,7]],'#bba8d5',2);line([[-6,-1],[-12,-5]],'#e3a6c6',3);ctx.restore();
 }
+function babyFromBehind(a,self){
+ ctx.save();ctx.scale(.8,.8);
+ if(chapter!==4)ellipse(0,2,23,7,'#cfe3d775');
+ const flap=chapter===4&&!reducedMotion?Math.sin(visualTime*6)*12:0;
+ if(wings){ctx.save();ctx.translate(0,flap);poly([[-10,-38],[-64,-72],[-75,-28],[-32,-14]],a.wings);poly([[10,-38],[64,-72],[75,-28],[32,-14]],a.wings);ctx.restore();}
+ line([[-9,-20],[-12,-1]],a.skin,10);line([[9,-20],[12,-1]],a.skin,10);ellipse(-12,2,8,4,a.skin);ellipse(12,2,8,4,a.skin);
+ line([[-17,-45],[-26,-26]],a.skin,8);line([[17,-45],[26,-26]],a.skin,8);
+ poly([[-16,-52],[16,-52],[24,-41],[17,-34],[16,-19],[7,-12],[-7,-12],[-16,-19],[-17,-34],[-24,-41]],a.top);
+ line([[-8,-17],[0,-20],[8,-17]],'#79b4d8',2);ellipse(0,-17,1.5,1.5,'#fff8ef');
+ ellipse(0,-70,24,25,a.skin);ellipse(-23,-66,4,6,a.skin);ellipse(23,-66,4,6,a.skin);
+ line([[-8,-91],[-4,-96],[1,-96],[3,-92],[0,-89]],a.hair,3);
+ // A small sideways glance makes the pacifier visible from the chase camera.
+ ellipse(17,-72,1.8,2.4,'#47354c');ellipse(22,-59,8,5,'#afcfe6');ellipse(27,-59,4,3,'#ecb8c9');ctx.strokeStyle='#e7a5bc';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(29,-55,4,5,0,0,Math.PI*2);ctx.stroke();
+ if(self)label('DU · '+a.name.toUpperCase(),0,30,'#e8f5e7');ctx.restore();
+}
+
 function lottaFromBehind(a=avatar(),self=true){
+ if(a.baby){babyFromBehind(a,self);return;}
  const walking=chapter!==4&&mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k=>keys.has(k));
  const stride=walking&&!reducedMotion?Math.sin(visualTime*10)*5:0,footLeft=chapter===4?-4:stride,footRight=chapter===4?-4:-stride;
  if(chapter!==4)ellipse(0,2,25,8,'#cfe3d775');
@@ -261,7 +279,7 @@ function lottaFromBehind(a=avatar(),self=true){
   if(a.hairStyle==='long'){poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],a.hair);line([[-12,-87],[-15,-64],[-10,-43]],a.highlight,3);line([[12,-87],[14,-65],[10,-43]],a.highlight,3);}
   else{poly([[-20,-91],[-23,-73],[-20,-59],[-10,-62],[0,-59],[11,-62],[21,-59],[23,-75],[20,-92]],a.hair);line([[-13,-86],[-16,-69],[-13,-63]],a.highlight,2);line([[13,-86],[16,-69],[13,-63]],a.highlight,2);}
  }
- label((self?'DU · ':'')+a.name.toUpperCase(),0,28,'#e8f5e7');
+ if(self)label('DU · '+a.name.toUpperCase(),0,28,'#e8f5e7');
 }
 function floorPatch(x1,x2,y1,y2,color){const near=Math.max(x1,player.x-85),far=Math.min(x2,player.x+1450);if(near>=far)return;const a=project(near,y1),b=project(near,y2),c=project(far,y2),d=project(far,y1);if(a&&b&&c&&d)poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],color);}
 function drawSolo(){

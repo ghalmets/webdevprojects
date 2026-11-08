@@ -178,3 +178,10 @@ https://ghalmets.github.io/webdevprojects/mathe-4/
 Eigenständiges Mathematikprogramm für die 4. Klasse, Zahlenraum wählbar bis 10.000 / 100.000. Schriftliche Addition und Subtraktion im Stellenraster mit freiwilliger Hilfszeile. Mehrstellige Multiplikation (dreistellig mal zweistellig) mit zwei Teilprodukt-Zeilen und Gesamtergebnis. Division ohne Rest. Umfang von Rechtecken und Quadraten in cm mit beschrifteten schematischen Zeichnungen. 10er-/100er-Zahlenfolgen vorwärts und rückwärts. Zahlenschreibweise als Stellenwerte, Zahlwörter und Ziffern. Jede Runde hat zehn Aufgaben und genau eine Sachaufgabe am Schluss, auch bei gezielter Themenwahl. Tipps und ausgearbeitete Rechenwege sind jederzeit nutzbar, ohne Punktabzug. Keine Zeitbegrenzung. Optional ausklappbare Bildschirmtastatur.
 
 `mathe-4/regeln.mjs` erzeugt Aufgaben und Rechenwege; `app.mjs` steuert Stellenraster, Eingaben und Fortschritt.
+
+
+### Drei Leben, zwei Lottas und echter Heimflug
+
+Jedes Kapitel startet mit drei Herzen. Kontakt mit einem normalen Vampir oder Abrutschen von einer Brücke kostet ein Herz; Turmwachen-/Obervampirgespräche und die geplante Falltür kosten keines. Kurze Schutzzeit nach einem Treffer. Bei null Herzen wird nur das aktuelle Kapitel neu gestartet. Die frühere Regel für falsche Kellereingänge bleibt: kompletter Neustart im Garten.
+
+Unten stehen zwei Lotta-Varianten zur Wahl (fliederfarbenes Kleid mit Schleife / mintfarbenes Kleid mit Haarspange). Die Auswahl bleibt über Kapitel und Wiederholungen erhalten. Der letzte Abschnitt ist ein Flug mit automatischer Vorwärtsbewegung, sichtbarem Abstand zum Boden, Schatten und Flügelschlag. ↑ steigen, ↓ sinken, ← / → seitlich steuern. Die 19 Vampire fliegen ebenfalls auf unterschiedlichen Höhen. Kollisionen zählen nur bei räumlicher Nähe und ähnlicher Höhe; keine Gespräche während des Flugs. Rechts vor dem Haus landet Lotta automatisch.

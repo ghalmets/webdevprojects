@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import * as rules from '../vampirinchen/regeln.mjs';
-function game(){const nodes=new Map(),pen=new Proxy({},{get:()=>()=>{},set:()=>true});const el=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',addEventListener(){},focus(){},getContext:()=>pen});return nodes.get(id);};const box={...rules,document:{getElementById:el,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},requestAnimationFrame(){},Math};vm.createContext(box);vm.runInContext(fs.readFileSync(new URL('../vampirinchen/spiel.mjs',import.meta.url),'utf8').replace(/^import .*\n/,''),box);return s=>vm.runInContext(s,box);}
+function game(){const nodes=new Map(),pen=new Proxy({},{get:()=>()=>{},set:()=>true});const el=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',addEventListener(){},setAttribute(){},focus(){},getContext:()=>pen});return nodes.get(id);};const box={...rules,document:{getElementById:el,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},requestAnimationFrame(){},Math};vm.createContext(box);vm.runInContext(fs.readFileSync(new URL('../vampirinchen/spiel.mjs',import.meta.url),'utf8').replace(/^import .*\n/,''),box);return s=>vm.runInContext(s,box);}
 test('Beide Brücken, Schlüsselauswahl und alle Kapitel funktionieren',()=>{
  const run=game();
  run('start();vampires.forEach(v=>v.passed=true);player={x:4250,y:400};update(0)');assert.equal(run('mode'),'playing');
@@ -20,7 +20,7 @@ test('Beide Brücken, Schlüsselauswahl und alle Kapitel funktionieren',()=>{
  run('for(const g of gems){player={x:g.x,y:g.y};update(0);}for(const k of inventory){player={x:k.x,y:k.y};update(0);}player={x:5450,y:350};tryKey((correctKey+1)%4)');assert.ok(!run('ladderUnlocked'));
  run('tryKey(correctKey);keys.add("ArrowUp");for(let i=0;i<100;i++)update(.02);draw()');assert.equal(run('mode'),'chapter');
  run('start();vampires.forEach(v=>v.passed=true);for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:1600,y:370};keys.add("ArrowUp");update(0);draw()');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
- run('start();vampires.forEach(v=>v.passed=true);player={x:2490,y:420};update(0);draw()');assert.equal(run('mode'),'finished');
+ run('start();vampires.forEach(v=>v.passed=true);player={x:2490,y:420};update(0);update(2);draw()');assert.equal(run('mode'),'finished');
  run('start();pause();draw()');assert.equal(run('chapter'),0);assert.ok(!run('wings'));assert.equal(run('mode'),'paused');
 });
 test('Alle Sammelobjekte sind über begehbare Wege erreichbar',()=>{
@@ -82,11 +82,29 @@ test('Genau 19 Vampire je Level einschließlich Obervampir und seiner beiden Wac
   for(const v of level.vampires){assert.ok(v.x>level.start.x&&v.x<level.width-150);if(index===1)assert.ok(v.x<rules.BRIDGE_SPAN.left||v.x>rules.BRIDGE_SPAN.right);}
  }
  assert.equal(rules.CHAPTERS[3].vampires.filter(v=>v.guard).length,2);
- const run=game();run('start();chapter=4;setup();mode="playing";player={x:300,y:300};update(0)');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.equal(run('mode'),'playing');
+ const run=game();run('start();chapter=4;setup();mode="playing";player={x:300,y:300};update(0)');assert.equal(run('mode'),'playing');assert.ok(run('wings'));assert.ok(run('flightHeight')>0);
 });
 
 test('Begegnung wird erst unmittelbar an Lottas Füßen ausgelöst, nicht weit vorne oder seitlich',()=>{
  const lotta={x:500,y:335};assert.ok(!rules.closeEncounter(lotta,{x:570,y:335}));assert.ok(!rules.closeEncounter(lotta,{x:520,y:400}));assert.ok(rules.closeEncounter(lotta,{x:530,y:335}));
  const feet=rules.chaseProject(lotta.x,lotta.y,lotta);const near=rules.chaseProject(530,335,lotta);const far=rules.chaseProject(650,335,lotta);
  assert.equal(feet.y,440);assert.ok(near.y>410&&near.y<feet.y);assert.ok(far.y<near.y);
+});
+
+test('Drei Leben pro Kapitel, Schutzzeit und Neustart nur im aktuellen Kapitel',()=>{
+ const run=game();run('start();chapter=2;setup();mode="playing";entranceChosen=true;chooseLotta("stern");hurtTimer=0;loseLife("Testtreffer")');assert.equal(run('lives'),2);run('loseLife("Geschützt")');assert.equal(run('lives'),2);
+ run('hurtTimer=0;loseLife("Treffer 2");hurtTimer=0;loseLife("Treffer 3")');assert.equal(run('lives'),0);assert.equal(run('mode'),'gameover');run('start()');assert.equal(run('chapter'),2);assert.equal(run('lives'),3);assert.equal(run('selectedLotta'),'stern');
+ run('chapter=3;setup()');assert.equal(run('lives'),3);
+});
+test('Pflichtwachen kosten kein Leben; normaler Vampir und Brückenfehler schon',()=>{
+ const run=game();run('start();chapter=3;setup();mode="playing";vampires.filter(v=>!v.guard).forEach(v=>v.passed=true);hurtTimer=0;player={x:1430,y:290};update(0)');assert.equal(run('mode'),'talk');assert.equal(run('lives'),3);
+ run('chapter=0;setup();mode="playing";hurtTimer=0;player={x:450,y:320};update(0)');assert.equal(run('lives'),2);
+ run('chapter=1;setup();mode="playing";hurtTimer=0;player={x:750,y:350};update(0)');assert.equal(run('lives'),2);
+});
+test('Flug bewegt Lotta automatisch vorwärts, Höhensteuerung und Lufttreffer funktionieren',()=>{
+ const run=game();run('start();chapter=4;setup();mode="playing";vampires=[];keys.add("ArrowUp");update(.2);keys.clear();draw()');assert.ok(run('player.x')>rules.CHAPTERS[4].start.x);assert.ok(run('flightHeight')>120);assert.ok(run('wings'));
+ const height=run('flightHeight');run('keys.add("ArrowDown");update(.2);keys.clear()');assert.ok(run('flightHeight')<height);
+ const point={x:500,y:335};assert.ok(!rules.flightCollision(point,180,{x:510,y:335},80));assert.ok(rules.flightCollision(point,120,{x:510,y:335},125));
+ run('time=0;player={x:300,y:320};flightHeight=125;hurtTimer=0;vampires=[{x:300,y:320,homeX:300,homeY:320}];update(0)');assert.equal(run('lives'),2);assert.equal(run('mode'),'playing');
+ run('player={x:2440,y:400};vampires=[];update(0);update(2);draw()');assert.equal(run('flightHeight'),0);assert.equal(run('mode'),'finished');
 });

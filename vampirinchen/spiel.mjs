@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=lange-haare-22';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=eigene-namen-23';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=lange-haare-22';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=eigene-namen-23';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -14,7 +14,26 @@ const CONTROLS=[
  {label:'Ziffern 8 ↑ · 4 ← · 5 ↓ · 6 →',keys:['8','4','5','6']}
 ];
 const heldKeys=new Set();
-let party=[{id:'lea',ready:true,state:null,waiting:null}],actorIndex=0,partyGeneration=0;
+let party=[{id:'lea',customName:'',ready:true,state:null,waiting:null}],actorIndex=0,partyGeneration=0;
+const playerName=p=>p.customName||AVATARS[p.id].name;
+const html=text=>String(text).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function refreshReadiness(){
+ const editable=['ready','finished'].includes(mode),ready=party.filter(p=>p.ready).length;
+ $('party-status').textContent=party.length===1?'Wähle dein Aussehen und gib deinen Wunschnamen ein.':`${ready} von ${party.length} Personen bereit. ${ready===party.length?'Ihr könnt gemeinsam starten!':'Jede Person wählt ihr Aussehen und ihren Namen und drückt selbst auf Bereit.'}`;
+ if(editable)$('start').disabled=ready!==party.length;
+ document.querySelectorAll('[data-ready]').forEach(button=>{const p=party[Number(button.dataset.ready)];button.disabled=!editable||p.ready;button.textContent=p.ready?'✓ Bereit':'Ich spiele mit – bereit!';});
+}
+function setPlayerName(index,value){
+ if(!['ready','finished'].includes(mode)||!party[index])return;
+ const p=party[index];p.customName=String(value).replace(/\s+/gu,' ').trim().slice(0,24);p.ready=party.length===1;
+ $('player-name-'+index).textContent=playerName(p);const control=$('control-name-'+index);if(control)control.textContent=playerName(p);
+ if(index===actorIndex){
+  if(party.length===1){$('hero-name').textContent=playerName(p);$('portrait-caption').textContent=`Das bist du: ${playerName(p)} ✨`;document.title=playerName(p)+' & Vampirinchen';}
+  if(mode==='ready')$('title').textContent=`Hallo, ${playerName(p)}!`;
+ }
+ refreshReadiness();
+}
+
 function captureActor(){return {player:{...player},lives,hurtTimer,flightHeight,landing,climb,bridgeDone,selectedBridge,fear};}
 function loadActor(index){actorIndex=index;selectedLotta=party[index].id;const s=party[index].state;if(!s)return;player={...s.player};({lives,hurtTimer,flightHeight,landing,climb,bridgeDone,selectedBridge,fear}=s);}
 function saveActor(){party[actorIndex].state=captureActor();}
@@ -25,7 +44,7 @@ function resetParty(){
 }
 function setPartyCount(count){
  if(!['ready','finished'].includes(mode)||!Number.isInteger(count)||count<1||count>5)return;
- const ids=Object.keys(AVATARS);party=ids.slice(0,count).map(id=>({id,ready:count===1,state:null,waiting:null}));actorIndex=0;mode='ready';chapter=0;wings=false;setup();chooseLotta(party[0].id);overlay('GEMEINSAM DURCH DIE NACHT',count===1?'Dein Abenteuer wartet!':`${count} Personen – ${count} eigene Figuren`,count===1?'Wähle deine Freundin und starte das Schlossabenteuer.':'Jede Person wählt im Auswahlfeld ihre Figur und drückt Bereit. Ihr steuert gleichzeitig am selben Gerät, sammelt gemeinsam und wartet am Kapitelziel aufeinander. Jede Ansicht gehört einer Person.','Ab in den Garten →');renderLobby();
+ const ids=Object.keys(AVATARS);party=ids.slice(0,count).map((id,i)=>({id,customName:party[i]?.customName||'',ready:count===1,state:null,waiting:null}));actorIndex=0;mode='ready';chapter=0;wings=false;setup();chooseLotta(party[0].id);overlay('GEMEINSAM DURCH DIE NACHT',count===1?'Dein Abenteuer wartet!':`${count} Personen – ${count} eigene Figuren`,count===1?'Wähle dein Aussehen, gib deinen Namen ein und starte das Schlossabenteuer.':'Jede Person wählt im Auswahlfeld ihr Aussehen, gibt ihren Namen ein und drückt Bereit. Ihr steuert gleichzeitig am selben Gerät, sammelt gemeinsam und wartet am Kapitelziel aufeinander. Jede Ansicht gehört einer Person.','Ab in den Garten →');renderLobby();
 }
 function assignCharacter(index,id){
  if(!['ready','finished'].includes(mode)||!party[index]||!Object.hasOwn(AVATARS,id))return;
@@ -37,15 +56,14 @@ function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[in
 function renderLobby(){
  const editable=['ready','finished'].includes(mode);
  document.querySelectorAll('[data-count]').forEach(b=>{b.disabled=!editable;b.setAttribute('aria-pressed',String(Number(b.dataset.count)===party.length));});
- $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>${AVATARS[p.id].name}</h3><img src="${AVATARS[p.id].portrait}?v=lange-haare-22" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
+ $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3 id="player-name-${i}">${html(playerName(p))}</h3><img src="${AVATARS[p.id].portrait}?v=eigene-namen-23" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Dein Name<input data-player-name="${i}" name="player-name-${i}" type="text" maxlength="24" autocomplete="off" placeholder="${AVATARS[p.id].name}" value="${html(p.customName||'')}" ${editable?'':'disabled'}></label><label>Dein Aussehen<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
  document.querySelectorAll('[data-player]').forEach(s=>s.addEventListener('change',()=>assignCharacter(Number(s.dataset.player),s.value)));
+ document.querySelectorAll('[data-player-name]').forEach(input=>input.addEventListener('input',()=>setPlayerName(Number(input.dataset.playerName),input.value)));
  document.querySelectorAll('[data-ready]').forEach(b=>b.addEventListener('click',()=>confirmPlayer(Number(b.dataset.ready))));
- const ready=party.filter(p=>p.ready).length;
- $('party-status').textContent=party.length===1?'Du spielst allein mit deiner gewählten Freundin.':`${ready} von ${party.length} Personen bereit. ${ready===party.length?'Ihr könnt gemeinsam starten!':'Jede Person wählt ihre Figur und drückt selbst auf Bereit.'}`;
- if(editable)$('start').disabled=ready!==party.length;
+ refreshReadiness();
  document.title=party.length>1?'Vampirinchen & Freundinnen':avatar().name+' & Vampirinchen';$('hero-name').textContent=party.length>1?'Freundinnen':avatar().name;$('hero-portrait').hidden=party.length>1;
  $('solo-controls').hidden=party.length!==1;$('party-controls').hidden=party.length===1;$('team-hud').hidden=party.length===1;
- $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3>${AVATARS[p.id].name}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${AVATARS[p.id].name}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
+ $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3 id="control-name-${i}">${html(playerName(p))}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${html(playerName(p))}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
  document.querySelectorAll('[data-party-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')heldKeys.add(button.dataset.partyKey);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>heldKeys.delete(button.dataset.partyKey));});
 }
 function teamReached(target){
@@ -56,7 +74,7 @@ function teamReached(target){
 }
 function teamHud(){
  if(party.length===1)return;
- const text=party.map((p,i)=>`${AVATARS[p.id].name}: ${'♥'.repeat(p.state?.lives??3)}${p.waiting?' · wartet am Ziel':''}`).join('   |   ');if($('team-hud').textContent!==text)$('team-hud').textContent=text;
+ const text=party.map((p,i)=>`${playerName(p)}: ${'♥'.repeat(p.state?.lives??3)}${p.waiting?' · wartet am Ziel':''}`).join('   |   ');if($('team-hud').textContent!==text)$('team-hud').textContent=text;
  if(chapter===2)$('key-choice').hidden=!party.some(p=>p.state.player.x>current().width-350);
 }
 function update(dt){
@@ -91,8 +109,8 @@ function draw(){
  if(generation===partyGeneration)loadActor(focus);
 }
 
-const avatar=()=>AVATARS[selectedLotta];
-const named=text=>String(text).replaceAll('{figur}',avatar().name);
+const avatar=()=>({...AVATARS[selectedLotta],name:party[actorIndex]?.customName||AVATARS[selectedLotta].name});
+const named=text=>String(text).replaceAll('{figur}',()=>avatar().name);
 function say(text){$('dialog').textContent=named(text);chatTimer=5;}
 function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();resetParty();$('level').textContent=named(`${chapter+1} / 5 · ${level.name}`);hud();say(level.target);}
 function hud(){
@@ -104,9 +122,9 @@ function hud(){
  $('lock-status').textContent=named(ladderUnlocked?'✓ Aufgeschlossen! Halte ↑ an der Leiter.':'Welcher Schlüssel passt? Du darfst alle ausprobieren.');
 }
 function chooseLotta(value){
- if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
+ if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,()=>avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=lange-haare-22';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=eigene-namen-23';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -118,7 +136,7 @@ function loseLife(reason){
  if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?',party.length===1?'Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Figur bleibt dieselbe.':`${avatar().name} hat alle drei Leben verbraucht. Ihr startet gemeinsam dieses Kapitel neu. Jede Person bekommt drei neue Leben; eure Figuren bleiben dieselben.`,'Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
  say(`${reason} Ein Herz weniger – noch ${lives} Leben. Du bist kurz geschützt.`);return true;
 }
-function finishHome(){if(!teamReached('home'))return;mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN',party.length>1?'Alle sind zu Hause!':'Gute Nacht, {figur}!',party.length>1?party.map(p=>AVATARS[p.id].name).join(', ')+' sind durch die Luft nach Hause geflogen und sicher gelandet. Ihr habt das Abenteuer gemeinsam geschafft!':'{figur} ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');renderLobby();$('start').focus({preventScroll:true});}
+function finishHome(){if(!teamReached('home'))return;mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN',party.length>1?'Alle sind zu Hause!':'Gute Nacht, {figur}!',party.length>1?party.map(p=>playerName(p)).join(', ')+' sind durch die Luft nach Hause geflogen und sicher gelandet. Ihr habt das Abenteuer gemeinsam geschafft!':'{figur} ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');renderLobby();$('start').focus({preventScroll:true});}
 function updateFlight(dt,vertical,side){
  if(landing){flightHeight=Math.max(0,flightHeight-95*dt);if(flightHeight===0)finishHome();hud();return;}
  player.x=Math.min(current().width-110,player.x+FLIGHT.speed*dt);
@@ -300,7 +318,7 @@ function drawSolo(){
  if(chapter===2)for(const key of inventory)if(!key.collected)objects.push({...key,type:'key'});
  for(const v of vampires)objects.push({...v,type:'vampire'});
  objects.push({x:player.x,y:player.y,type:'lotta'});
- if(party.length>1)party.forEach((p,i)=>{if(i!==actorIndex)objects.push({...p.state.player,type:'friend',id:p.id,state:p.state});});
+ if(party.length>1)party.forEach((p,i)=>{if(i!==actorIndex)objects.push({...p.state.player,type:'friend',id:p.id,name:playerName(p),state:p.state});});
  if(chapter===2&&!entranceChosen)for(let i=0;i<3;i++)objects.push({x:320,y:235+i*100,type:'choiceDoor',number:i+1});
  if(chapter===0)objects.push({x:level.width-100,y:350,type:'door'});
  if(chapter===2)objects.push({x:level.width-130,y:350,type:'ladder'});
@@ -310,7 +328,7 @@ function drawSolo(){
  for(const o of objects){const p=project(o.x,o.y);if(!p||p.x<-250||p.x>1210)continue;ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.scale,p.scale);
  if(chapter===4&&(o.type==='lotta'||o.type==='friend'||o.type==='vampire')){ellipse(0,0,o.type==='vampire'?18:24,5,'#121b3030');ctx.translate(0,-(o.type==='lotta'?flightHeight:o.type==='friend'?o.state.flightHeight:o.altitude||125));if(o.type==='vampire'){poly([[-10,-45],[-60,-80],[-72,-32],[-29,-23]],'#795784');poly([[10,-45],[60,-80],[72,-32],[29,-23]],'#795784');}}
  if(o.type==='lotta'){if(hurtTimer>0&&Math.floor(visualTime*8)%2)ctx.globalAlpha=.55;if(climb>0)ctx.translate(0,-climb*65);lottaFromBehind();}
- if(o.type==='friend'){if(o.state.hurtTimer>0&&Math.floor(visualTime*8)%2)ctx.globalAlpha=.55;if(o.state.climb>0)ctx.translate(0,-o.state.climb*65);lottaFromBehind(AVATARS[o.id],false);}
+ if(o.type==='friend'){if(o.state.hurtTimer>0&&Math.floor(visualTime*8)%2)ctx.globalAlpha=.55;if(o.state.climb>0)ctx.translate(0,-o.state.climb*65);lottaFromBehind({...AVATARS[o.id],name:o.name},false);}
  if(o.type==='vampire'){if(chapter===4&&o.passed)ctx.globalAlpha=.35;ctx.strokeStyle=o.passed?'#a5cf9a':'#e6b784';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,25,8,0,0,Math.PI*2);ctx.stroke();character({x:0,y:0,boss:o.boss,name:o.name},true);if(o.passed)label('✓ Danke!',0,-122,'#c3e0ad');}
  if(o.type==='gem'){poly([[0,-40],[15,-20],[0,0],[-15,-20]],'#e9cc83');}
  if(o.type==='key'){ellipse(0,-30,10,10,'#edc982');line([[0,-20],[0,2],[8,2]],'#edc982',5);label(o.name,0,-55);}

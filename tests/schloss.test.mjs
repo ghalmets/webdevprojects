@@ -187,3 +187,23 @@ test('Auch bei fünf Personen warten Kapitelziele auf die fünfte Figur',()=>{
  run('gems.forEach(g=>g.collected=true);score=gems.length;party.slice(0,4).forEach(p=>p.state.player={x:current().width-100,y:350});update(0)');assert.equal(run('mode'),'playing');assert.ok(run('party.slice(0,4).every(p=>p.waiting==="chapter")'));
  run('party[4].state.player={x:current().width-100,y:350};update(0)');assert.equal(run('mode'),'chapter');run('start()');assert.equal(run('party.length'),5);assert.ok(run('party.every(p=>p.state.lives===3)'));
 });
+
+test('Eigener Name begleitet die Figur durch Aussehenswechsel, Gespräche, Kapitel und Neustart',()=>{
+ const run=game();run("setPlayerName(0,'  Mia   Marie  ');assignCharacter(0,'baby');start();beginTalk({name:'Vampirinchen'})");assert.equal(run('avatar().name'),'Mia Marie');assert.ok(run('$("reply-one").textContent').includes('Mia Marie'));assert.ok(run('$("talk-thought").textContent').includes('Mia Marie'));
+ run("reply(0);reply(0);next('Weiter','{figur} geht weiter');start()");assert.equal(run('chapter'),1);assert.equal(run('avatar().name'),'Mia Marie');
+ run("hurtTimer=0;loseLife('Treffer');hurtTimer=0;loseLife('Treffer');hurtTimer=0;loseLife('Treffer');start()");assert.equal(run('chapter'),1);assert.equal(run('avatar().name'),'Mia Marie');
+ run("chapter=4;setup();mode='playing';vampires=[];player={x:2440,y:400};update(0);update(2)");assert.ok(run('$("title").textContent').includes('Mia Marie'));
+});
+
+test('Fünf eigene Namen bleiben ihren Mitspielenden zugeordnet; Namenswechsel benötigt erneute Bereitschaft',()=>{
+ const run=game();run("setPartyCount(5);['Mia','Ben','Zoë','Alex','Baby Max'].forEach((name,i)=>{setPlayerName(i,name);confirmPlayer(i)});assignCharacter(0,'baby')");assert.equal(run('playerName(party[0])'),'Mia');assert.equal(run('playerName(party[4])'),'Baby Max');
+ run("party.forEach((_,i)=>confirmPlayer(i));setPlayerName(2,'Emma');start()");assert.equal(run('mode'),'ready');assert.ok(!run('party[2].ready'));assert.ok(run('party[1].ready'));
+ run("confirmPlayer(2);start();loadActor(4);beginTalk({name:'Vampirinchen'})");assert.ok(run('$("reply-one").textContent').includes('Baby Max'));run('reply(0);reply(0);draw();teamHud()');assert.ok(run('$("team-hud").textContent').includes('Emma'));
+ run("setPlayerName(4,'Anders')");assert.equal(run('playerName(party[4])'),'Baby Max');
+});
+
+test('Leere Namen verwenden Figurennummern; Namen und Sonderzeichen bleiben reiner Text',()=>{
+ const run=game();run("setPlayerName(0,'   ')");assert.equal(run('avatar().name'),'Person 1');
+ run(`setPlayerName(0,'<b>Ö & $&</b>');renderLobby()`);assert.equal(run("named('Hallo, {figur}!')"),'Hallo, <b>Ö & $&</b>!');assert.ok(run('$("party-slots").innerHTML').includes('&lt;b&gt;'));assert.ok(!run('$("party-slots").innerHTML').includes('<b>Ö'));
+ run("setPlayerName(0,'x'.repeat(100))");assert.equal(run('avatar().name.length'),24);
+});

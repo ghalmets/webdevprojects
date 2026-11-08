@@ -24,7 +24,14 @@ export const CHAPTERS = [
  {name:'Die zwei Hängebrücken',width:2700,start:{x:80,y:350},target:'Hole den Schlüssel. Wähle Mondbrücke links oder Sternbrücke rechts. Danach durch die Falltür fallen. Unten warten drei Eingänge!',gems:[{x:380,y:350}],blocks:[],vampires:[...patrols(12,220,620),...patrols(18,1580,2140)]},
  {name:'Der lange Schlosskeller',width:5600,start:{x:80,y:435},target:'Sammle 8 Mondsteine und 4 Schlüssel. Errate bei der Leiter den richtigen Schlüssel.',gems:stones(8,400,5000),blocks:[{x:450,y:290,w:200,h:70},{x:1390,y:340,w:230,h:65},{x:2500,y:280,w:220,h:65},{x:3650,y:340,w:220,h:65},{x:4600,y:280,w:210,h:65}],vampires:patrols(30,550,5150)},
  {name:'Der Turm des Obervampirs',width:1800,start:{x:80,y:435},target:'Sammle 8 Zaubersteine. Sprich mit beiden Turmwachen, dann beim Obervampir ↑ für deinen Flügelwunsch drücken.',gems:stones(8,250,1320),blocks:[],vampires:[...patrols(27,350,1320),{x:1440,y:290,name:'Linke Turmwache',guard:true},{x:1470,y:410,name:'Rechte Turmwache',guard:true}]},
- {name:'Mit Flügeln nach Hause',width:2600,start:{x:100,y:300},target:'Du kannst fliegen! Sprich unterwegs mit 30 Vampiren und fliege zu Lottas Haus.',gems:[],blocks:[],vampires:patrols(30,300,2300)}
+ {name:'Mit Flügeln nach Hause',width:2600,start:{x:100,y:300},target:'Du kannst fliegen! Weiche 30 Vampiren aus oder sprich mit ihnen. Fliege zu Lottas Haus.',gems:[],blocks:[],vampires:patrols(30,300,2300)}
 ];
 export function bridgeAt(y){return BRIDGES.findIndex(b=>y>=b.top+4&&y<=b.bottom-4);}
 export function onBridge(x,y){return x<BRIDGE_SPAN.left||x>BRIDGE_SPAN.right||bridgeAt(y)!==-1;}
+
+// Begegnungen werden an den Füßen in der Spielwelt gemessen, nicht an einer Bildschirmkante.
+export function closeEncounter(lotta,vampire){return Math.abs(lotta.x-vampire.x)<=32&&Math.abs(lotta.y-vampire.y)<=26;}
+export function chaseProject(x,y,lotta){
+ const depth=x-lotta.x+300;if(depth<210||depth>1800)return null;
+ const scale=300/depth;return {x:480+(y-335)*2*scale,y:135+305*scale,scale};
+}

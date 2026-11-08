@@ -148,3 +148,8 @@ Lotta zeigt bei Vampirbegegnungen Angst: Gedanken vor dem Gespräch, vorsichtige
 ### 30 Vampire in jedem Level
 
 Garten, Brückensaal, Keller und Heimflug enthalten je 30 Vampire mit Gesprächen. Im Turm sind es 27 normale Vampire, zwei Turmwachen und der Obervampir – insgesamt ebenfalls 30. Die Brücken-Vampire stehen vor und hinter der Schlucht; beide Brücken bleiben begehbar.
+
+
+### Aktuelle Kamera und Begegnungen
+
+Die Kamera sitzt jetzt leicht erhöht hinter Lotta. Ihre vollständige Rückenansicht mit langen Haaren, Kleid und Füßen ist im unteren Bildbereich sichtbar und bewegt sich beim Lenken seitlich. Die alten Haare am Bildschirmrand und losgelösten Hände wurden entfernt. Projektion und Begegnung nutzen dieselben Weltpositionen. Ein Gespräch beginnt erst bei höchstens 32 Pixeln Abstand entlang des Weges und 26 Pixeln seitlichem Abstand. Es gibt keine Sperrlinie quer über den Weg; normalen Vampiren darf man seitlich ausweichen. Bereits besprochene Vampire lösen kein weiteres Gespräch aus. Die zwei Turmwachen bleiben verpflichtend: Erst nach beiden Gesprächen kann der Obervampir die Flügel schenken.

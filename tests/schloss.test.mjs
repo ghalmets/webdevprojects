@@ -36,20 +36,19 @@ test('Alle Sammelobjekte sind über begehbare Wege erreichbar',()=>{
  }
 });
 
-test('Vampire sperren den Weg bis zum vollständigen Gespräch, auch beim seitlichen Vorbeigehen',()=>{
- const run=game();run('start();player={x:385,y:210};keys.add("ArrowUp");update(.1);draw()');assert.equal(run('mode'),'talk');assert.ok(run('player.x')<=run('vampires[0].homeX')-70);
+test('Keine unsichtbare Sperrlinie: seitliches Vorbeigehen geht, echte Nähe startet ein Gespräch',()=>{
+ const run=game();run('start();vampires.slice(1).forEach(v=>v.passed=true);player={x:450,y:210};keys.add("ArrowUp");update(.1);keys.clear();draw()');assert.equal(run('mode'),'playing');assert.ok(run('player.x')>460);
+ run('player={x:425,y:320};keys.add("ArrowUp");update(.1);draw()');assert.equal(run('mode'),'talk');
  const x=run('player.x'),time=run('time');run('keys.add("ArrowUp");update(1)');assert.equal(run('player.x'),x);assert.equal(run('time'),time);
- run('reply(1)');assert.equal(run('mode'),'talk');assert.ok(!run('vampires[0].passed'));
- run('reply(0)');assert.equal(run('mode'),'playing');assert.ok(run('vampires[0].passed'));
+ run('reply(1)');assert.equal(run('mode'),'talk');assert.ok(!run('vampires[0].passed'));run('reply(0)');assert.equal(run('mode'),'playing');assert.ok(run('vampires[0].passed'));
  run('keys.add("ArrowUp");update(.1)');assert.ok(run('player.x')>x);assert.equal(run('mode'),'playing');
- run('player.x=385;player.y=450;update(0)');assert.equal(run('mode'),'playing');
 });
-test('Ich-Perspektive: vorwärts, zurück und seitwärts passen zur Blickrichtung',()=>{
+test('Verfolgerkamera: Lotta bewegt sich seitlich im Bild und ihre Füße sind der Bezugspunkt',()=>{
  const run=game();run('start();keys.add("ArrowUp");update(.1);keys.clear()');assert.ok(run('player.x')>80);
  run('keys.add("ArrowDown");update(.1);keys.clear()');assert.equal(run('player.x'),80);
  const y=run('player.y');run('keys.add("ArrowLeft");update(.1);keys.clear()');assert.ok(run('player.y')<y);
  run('keys.add("ArrowRight");update(.1);keys.clear();draw()');assert.equal(run('player.y'),y);
- assert.ok(run('project(player.x+100,player.y).x')===480);assert.equal(run('project(player.x-100,player.y)'),null);
+ assert.equal(run('project(player.x,player.y).y'),440);const screenX=run('project(player.x,player.y).x');run('player.y+=20');assert.ok(run('project(player.x,player.y).x')>screenX);assert.equal(run('project(player.x-100,player.y)'),null);
 });
 
 test('Falsche Kellertüren setzen alle Funde und Gespräche auf den Gartenanfang zurück',()=>{
@@ -63,15 +62,15 @@ test('Falsche Kellertüren setzen alle Funde und Gespräche auf den Gartenanfang
 });
 
 test('Zwei Turmwachen verlangen je ein vollständiges Gespräch vor dem Obervampir',()=>{
- const run=game();run('start();chapter=3;setup();mode="playing";vampires.filter(v=>!v.guard).forEach(v=>v.passed=true);score=gems.length;player={x:1360,y:350};keys.add("ArrowUp");update(.1);draw()');
+ const run=game();run('start();chapter=3;setup();mode="playing";vampires.filter(v=>!v.guard).forEach(v=>v.passed=true);score=gems.length;player={x:1560,y:350};keys.add("ArrowUp");update(0)');assert.equal(run('mode'),'playing');assert.ok(!run('wings'));run('player={x:1410,y:290};update(.1);draw()');
  assert.equal(run('mode'),'talk');assert.equal(run('activeTalk.name'),'Linke Turmwache');
  run('reply(0)');assert.ok(!run('vampires.find(v=>v.guard).passed'));run('reply(0)');
- run('keys.add("ArrowUp");update(.3)');assert.equal(run('mode'),'talk');assert.equal(run('activeTalk.name'),'Rechte Turmwache');
+ run('player={x:1445,y:410};keys.add("ArrowUp");update(.1)');assert.equal(run('mode'),'talk');assert.equal(run('activeTalk.name'),'Rechte Turmwache');
  assert.ok(!run('wings'));run('reply(1);reply(0)');assert.ok(run('vampires.filter(v=>v.guard).every(v=>v.passed)'));
- run('player={x:1530,y:350};keys.add("ArrowUp");update(0)');assert.equal(run('activeTalk.name'),'Obervampir');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
+ run('player={x:1560,y:350};keys.add("ArrowUp");update(0)');assert.equal(run('activeTalk.name'),'Obervampir');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
 });
 test('Lottas Angst steigt bei Vampiren und sinkt während eines beruhigenden Gesprächs',()=>{
- const run=game();run('start();player={x:385,y:210};keys.add("ArrowUp");update(.1);draw()');
+ const run=game();run('start();player={x:425,y:320};keys.add("ArrowUp");update(.1);draw()');
  assert.equal(run('fear'),1);assert.ok(run('$("talk-thought").textContent').includes('zittern'));assert.ok(run('$("reply-two").textContent').includes('Angst'));
  run('reply(1)');assert.equal(run('fear'),.55);assert.ok(run('$("talk-thought").textContent').includes('sicherer'));
  run('reply(0)');assert.equal(run('fear'),.2);assert.equal(run('mode'),'playing');assert.ok(run('$("dialog").textContent').includes('getraut'));
@@ -84,4 +83,10 @@ test('Genau 30 Vampire je Level einschließlich Obervampir und seiner beiden Wac
  }
  assert.equal(rules.CHAPTERS[3].vampires.filter(v=>v.guard).length,2);
  const run=game();run('start();chapter=4;setup();mode="playing";player={x:300,y:300};update(0)');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.equal(run('mode'),'playing');
+});
+
+test('Begegnung wird erst unmittelbar an Lottas Füßen ausgelöst, nicht weit vorne oder seitlich',()=>{
+ const lotta={x:500,y:335};assert.ok(!rules.closeEncounter(lotta,{x:570,y:335}));assert.ok(!rules.closeEncounter(lotta,{x:520,y:400}));assert.ok(rules.closeEncounter(lotta,{x:530,y:335}));
+ const feet=rules.chaseProject(lotta.x,lotta.y,lotta);const near=rules.chaseProject(530,335,lotta);const far=rules.chaseProject(650,335,lotta);
+ assert.equal(feet.y,440);assert.ok(near.y>410&&near.y<feet.y);assert.ok(far.y<near.y);
 });

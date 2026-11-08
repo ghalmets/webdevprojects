@@ -195,3 +195,5 @@ Die Figurenauswahl bietet jetzt Lea (fliederfarbenes Kleid), Luna (mintfarbenes 
 ### Individuelle Outfits der Freundinnen
 
 Lea: gelbes Kleid, lila Sandalen, lange mittelbraune Haare. Lilly: grüne Hose, braunes T-Shirt, braune Schuhe, blonde schulterlange Haare. Luna: wuschelige schwarze Haare, dunkle Haut, dunkelblaues T-Shirt, schwarzer Rock (keine Jeans), braune Schuhe. Hanna: gepunktete Leggings, weißes T-Shirt mit Einhornmotiv, weiße Schuhe, mittelbraune Haare. Porträts und Rückenansichten verwenden jeweils passende Kleidung, Haare und Hautfarben. Alle vier sind gleich spielbar.
+
+Aktuelle Spielfiguren: Lea, Luna, Lilly und Hanna ersetzen Lotta vollständig. Alle Gespräche und Kapitel verwenden den Namen der ausgewählten Freundin.

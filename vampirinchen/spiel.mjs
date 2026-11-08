@@ -1,12 +1,12 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=outfits-17';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=freundinnen-18';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=outfits-17';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=freundinnen-18';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
 const avatar=()=>AVATARS[selectedLotta];
-const named=text=>String(text).replaceAll('Lotta',avatar().name).replaceAll('LOTTA',avatar().name.toUpperCase());
+const named=text=>String(text).replaceAll('{figur}',avatar().name);
 function say(text){$('dialog').textContent=named(text);chatTimer=5;}
 function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();$('level').textContent=named(`${chapter+1} / 5 · ${level.name}`);hud();say(level.target);}
 function hud(){
@@ -20,7 +20,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=outfits-17';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=freundinnen-18';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -32,7 +32,7 @@ function loseLife(reason){
  if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?','Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Figur bleibt dieselbe.','Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
  say(`${reason} Ein Herz weniger – noch ${lives} Leben. Du bist kurz geschützt.`);return true;
 }
-function finishHome(){mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN','Gute Nacht, Lotta!','Lotta ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');$('start').focus({preventScroll:true});}
+function finishHome(){mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN','Gute Nacht, {figur}!','{figur} ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');$('start').focus({preventScroll:true});}
 function updateFlight(dt,vertical,side){
  if(landing){flightHeight=Math.max(0,flightHeight-95*dt);if(flightHeight===0)finishHome();hud();return;}
  player.x=Math.min(current().width-110,player.x+FLIGHT.speed*dt);
@@ -43,8 +43,8 @@ function updateFlight(dt,vertical,side){
   if(!loseLife('Ein fliegender Vampir hat dich erwischt.'))return;
   if(hurtTimer>0)v.passed=true;
  }
- if(player.x>2250&&chatTimer===0)say('Dein Haus ist rechts! Lenke nach rechts. Lotta landet dort automatisch.');
- if(player.x>2430&&player.y>340){landing=true;say('Geschafft! Lotta setzt zur Landung vor ihrem Haus an.');}
+ if(player.x>2250&&chatTimer===0)say('Dein Haus ist rechts! Lenke nach rechts. {figur} landet dort automatisch.');
+ if(player.x>2430&&player.y>340){landing=true;say('Geschafft! {figur} setzt zur Landung vor ihrem Haus an.');}
  hud();
 }
 function tryKey(index){
@@ -56,26 +56,26 @@ function tryKey(index){
 }
 function beginTalk(vampire){
  if(mode!=='playing')return;mode='talk';activeTalk=vampire;talkStep=0;keys.clear();
- fear=1;hud();say('Lotta denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=named(vampire.boss?'Lotta denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'Lotta denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“');
+ fear=1;hud();say('{figur} denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=named(vampire.boss?'{figur} denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'{figur} denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“');
  $('conversation').hidden=false;$('talk-name').textContent=named(vampire.name);$('talk-portrait').hidden=vampire.name!=='Vampirinchen';
- $('talk-text').textContent=named(vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, Lotta?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`);
- $('reply-one').textContent=named(vampire.boss?'Ich wünsche mir Flügel, um nach Hause zu fliegen.':'I-ich bin Lotta … Bitte lass mich vorbei.');
+ $('talk-text').textContent=named(vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, {figur}?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`);
+ $('reply-one').textContent=named(vampire.boss?'Ich wünsche mir Flügel, um nach Hause zu fliegen.':'I-ich bin {figur} … Bitte lass mich vorbei.');
  $('reply-two').textContent=named(vampire.boss?'Kannst du mir beim Heimfliegen helfen?':'Ich habe ein bisschen Angst. Kannst du mir helfen?');
  $('reply-one').focus({preventScroll:true});
 }
 function reply(choice){
  if(mode!=='talk'||!activeTalk)return;
- if(talkStep===0){talkStep=1;fear=.55;hud();$('talk-thought').textContent=named('Lotta atmet tief durch. Ihr Herz klopft noch, aber sie fühlt sich schon etwas sicherer.');$('talk-text').textContent=named(activeTalk.boss?'Obervampir: „Sehr gern! Für deinen Mut und deine Freundlichkeit schenke ich dir silberne Flügel.“':choice===0?`${activeTalk.name}: „Du brauchst dich vor mir nicht zu fürchten, Lotta. Ich mache dir Platz.“`:`${activeTalk.name}: „Natürlich helfe ich dir. Atme ruhig durch – ich lasse dich vorbei.“`);
+ if(talkStep===0){talkStep=1;fear=.55;hud();$('talk-thought').textContent=named('{figur} atmet tief durch. Ihr Herz klopft noch, aber sie fühlt sich schon etwas sicherer.');$('talk-text').textContent=named(activeTalk.boss?'Obervampir: „Sehr gern! Für deinen Mut und deine Freundlichkeit schenke ich dir silberne Flügel.“':choice===0?`${activeTalk.name}: „Du brauchst dich vor mir nicht zu fürchten, {figur}. Ich mache dir Platz.“`:`${activeTalk.name}: „Natürlich helfe ich dir. Atme ruhig durch – ich lasse dich vorbei.“`);
  $('reply-one').textContent=named(activeTalk.boss?'Danke! Ich bin bereit zum Fliegen!':'Danke … jetzt habe ich nicht mehr so viel Angst.');$('reply-two').textContent=named(activeTalk.boss?'Das ist wunderbar! Danke!':'Puh! Danke. Ich gehe jetzt vorsichtig weiter.');return;}
  fear=.2;hud();const boss=activeTalk.boss;activeTalk.passed=true;activeTalk=null;$('conversation').hidden=true;keys.clear();mode='playing';
- if(boss){wings=true;next('Ein Wunsch wird wahr!','Der Obervampir schenkt Lotta Flügel. Die Kamera begleitet Lotta von hinten durch den Nachthimmel. Fliege nach vorne und zum leuchtenden Haus!');}
- else{say('Lotta atmet auf: „Puh! Das war unheimlich. Aber ich habe mich getraut!“');canvas.focus({preventScroll:true});}
+ if(boss){wings=true;next('Ein Wunsch wird wahr!','Der Obervampir schenkt {figur} Flügel. Die Kamera begleitet {figur} von hinten durch den Nachthimmel. Fliege nach vorne und zum leuchtenden Haus!');}
+ else{say('{figur} atmet auf: „Puh! Das war unheimlich. Aber ich habe mich getraut!“');canvas.focus({preventScroll:true});}
 }
 function chooseDoor(index){
  if(mode!=='doors'||chapter!==2||!Number.isInteger(index)||index<0||index>2)return;
  $('door-choice').hidden=true;keys.clear();
  if(index===correctDoor){entranceChosen=true;mode='playing';say('Der richtige Eingang! Jetzt geht es tiefer in den Schlosskeller. Suche Mondsteine und Schlüssel.');canvas.focus({preventScroll:true});}
- else{chapter=0;wings=false;setup();mode='outside';$('pause').disabled=true;overlay('DIESE TÜR FÜHRT NACH DRAUSSEN','Wieder vor dem Schloss!','Lotta ist durch eine Außentür gegangen. Alle Mondsteine, Schlüssel und Gespräche werden zurückgesetzt. Das Abenteuer beginnt wieder ganz vorne im Garten. Merke dir die falsche Tür!','Von vorne im Garten starten →');$('start').focus({preventScroll:true});}
+ else{chapter=0;wings=false;setup();mode='outside';$('pause').disabled=true;overlay('DIESE TÜR FÜHRT NACH DRAUSSEN','Wieder vor dem Schloss!','{figur} ist durch eine Außentür gegangen. Alle Mondsteine, Schlüssel und Gespräche werden zurückgesetzt. Das Abenteuer beginnt wieder ganz vorne im Garten. Merke dir die falsche Tür!','Von vorne im Garten starten →');$('start').focus({preventScroll:true});}
 }
 function showDoors(){
  mode='doors';keys.clear();$('door-choice').hidden=false;
@@ -87,7 +87,7 @@ function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('
 function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent=named('Weiter');overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
 function next(title,text){keys.clear();mode='chapter';$('pause').disabled=true;overlay('DAS ABENTEUER GEHT WEITER',title,text,'Weiter →');$('start').focus({preventScroll:true});}
 function update(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hurtTimer-dt);fear=Math.max(.1,fear-dt*.07);const looming=vampires.some(v=>!v.passed&&v.homeX-player.x>0&&v.homeX-player.x<240);if(looming)fear=Math.max(fear,.55);cooldown=Math.max(0,cooldown-dt);chatTimer=Math.max(0,chatTimer-dt);
- if(fallTime>0){fallTime-=dt;if(fallTime<=0){chapter=2;setup();mode='playing';showDoors();say('Plumps! Lotta ist weich gelandet. Vor ihr sind drei Eingänge – nur einer führt in den richtigen Keller.');}return;}
+ if(fallTime>0){fallTime-=dt;if(fallTime<=0){chapter=2;setup();mode='playing';showDoors();say('Plumps! {figur} ist weich gelandet. Vor ihr sind drei Eingänge – nur einer führt in den richtigen Keller.');}return;}
  if(chapter===2&&!entranceChosen){showDoors();return;}
  const dx=Number(keys.has('ArrowUp')||keys.has('w'))-Number(keys.has('ArrowDown')||keys.has('s'));
  const dy=Number(keys.has('ArrowRight')||keys.has('d'))-Number(keys.has('ArrowLeft')||keys.has('a'));
@@ -99,23 +99,23 @@ function update(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hur
   if(!onBridge(player.x,player.y)){
    player={x:before.x>BRIDGE_SPAN.right?BRIDGE_SPAN.right+55:BRIDGE_SPAN.left-55,y:selectedBridge>=0?BRIDGES[selectedBridge].center:350};
    if(!bridgeDone)selectedBridge=-1;
-   cooldown=1;if(!loseLife('Lotta ist von der wackeligen Brücke gerutscht.'))return;say('Wähle links die Mondbrücke oder rechts die Sternbrücke und bleib auf den Planken.');
+   cooldown=1;if(!loseLife('{figur} ist von der wackeligen Brücke gerutscht.'))return;say('Wähle links die Mondbrücke oder rechts die Sternbrücke und bleib auf den Planken.');
   }else if(player.x>=BRIDGE_SPAN.left&&player.x<=BRIDGE_SPAN.right){
    const lane=bridgeAt(player.y);
-   if(selectedBridge===-1&&before.x<BRIDGE_SPAN.left){selectedBridge=lane;say(`Lotta wählt die ${BRIDGES[lane].name}. Vorsichtig hinüber!`);}
+   if(selectedBridge===-1&&before.x<BRIDGE_SPAN.left){selectedBridge=lane;say(`{figur} wählt die ${BRIDGES[lane].name}. Vorsichtig hinüber!`);}
   }
   if(selectedBridge>=0&&before.x<=BRIDGE_SPAN.right&&player.x>BRIDGE_SPAN.right){bridgeDone=true;say('Brücke geschafft! Jetzt geht es zur Falltür.');}
  }
  vampires.forEach((v,i)=>{v.y=v.guard?v.homeY:v.homeY+Math.sin(time*.85+i*1.7)*110;v.x=v.guard?v.homeX:v.homeX+Math.sin(time*.5+i)*30;});
  // Erst ein tatsächliches Zusammentreffen auf derselben Spur löst das Gespräch aus.
  const nearby=vampires.find(v=>!v.passed&&closeEncounter(player,v));
- if(nearby){if(!nearby.guard&&!loseLife('Lotta ist mit einem Vampir zusammengestoßen.'))return;beginTalk(nearby);hud();return;}
- for(const gem of gems)if(!gem.collected&&touching(player,gem,32)){gem.collected=true;score++;hud();say(score===gems.length?current().target+' Alles eingesammelt!': 'Lotta: „Gefunden! Weiter geht’s.“');}
+ if(nearby){if(!nearby.guard&&!loseLife('{figur} ist mit einem Vampir zusammengestoßen.'))return;beginTalk(nearby);hud();return;}
+ for(const gem of gems)if(!gem.collected&&touching(player,gem,32)){gem.collected=true;score++;hud();say(score===gems.length?current().target+' Alles eingesammelt!': '{figur}: „Gefunden! Weiter geht’s.“');}
  if(chapter===2)for(const key of inventory)if(!key.collected&&touching(player,key,30)){key.collected=true;hud();say(`${key.name} gefunden! Erst an der Leiter erfährst du, ob er passt.`);}
  if(chapter===0&&player.x>current().width-180){if(score===gems.length)next('Willkommen im Schloss!','Die Mondsteine öffnen das Schlosstor. Drinnen warten zwei Hängebrücken. Wähle eine und überquere sie, um die Falltür zu erreichen.');else if(chatTimer===0)say('Am Tor fehlen noch Mondsteine. Suche im großen Garten!');}
- if(chapter===1&&player.x>2250&&player.x<2390&&score===1&&bridgeDone){fallTime=1.3;keys.clear();fear=1;hud();say('Lotta: „Aaaah! Der Boden geht auf!“ Ihr Herz rast, dann landet sie weich auf Heu.');return;}
+ if(chapter===1&&player.x>2250&&player.x<2390&&score===1&&bridgeDone){fallTime=1.3;keys.clear();fear=1;hud();say('{figur}: „Aaaah! Der Boden geht auf!“ Ihr Herz rast, dann landet sie weich auf Heu.');return;}
  if(chapter===1&&player.x>2150&&(!bridgeDone||score===0)&&chatTimer===0)say('Erst den Schlüssel holen und eine der beiden Hängebrücken vollständig überqueren.');
- if(chapter===2&&player.x>current().width-200&&Math.abs(player.y-350)<80&&ladderUnlocked&&score===gems.length&&inventory.every(k=>k.collected)&&dx>0){climb+=dt;if(climb>=1.5)next('Wieder oben!','Lotta klettert Sprosse für Sprosse nach oben. Die Treppe führt direkt in den Turm zum Obervampir.');}else climb=0;
+ if(chapter===2&&player.x>current().width-200&&Math.abs(player.y-350)<80&&ladderUnlocked&&score===gems.length&&inventory.every(k=>k.collected)&&dx>0){climb+=dt;if(climb>=1.5)next('Wieder oben!','{figur} klettert Sprosse für Sprosse nach oben. Die Treppe führt direkt in den Turm zum Obervampir.');}else climb=0;
  if(chapter===2&&player.x>current().width-350&&chatTimer===0)say(ladderUnlocked?(score===gems.length&&inventory.every(k=>k.collected)?'Halte ↑ an der Leiter gedrückt.':'Es fehlen noch Mondsteine oder Schlüssel im Keller.'):'Probiere unten einen deiner gefundenen Schlüssel am Schloss aus.');
  if(chapter===3&&Math.abs(player.x-(current().width-210))<55&&Math.abs(player.y-350)<45&&dx>0){
   if(!vampires.filter(v=>v.guard).every(v=>v.passed)){if(chatTimer===0)say('Vor dem Obervampir warten zwei Wachen. Gehe nah zu jeder Wache und sprich mit ihr.');}
@@ -145,9 +145,9 @@ function character(p,isVampire){const bob=mode==='playing'?Math.sin(time*9)*2:0;
  if(p.boss)poly([[-20,-88],[-24,-110],[-8,-99],[0,-116],[9,-99],[24,-110],[20,-88]],'#e2bf6e');
  ellipse(-6,-66,2,2,'#47354c');ellipse(7,-66,2,2,'#47354c');line([[-4,-56],[1,-54],[6,-56]],'#9e6474',1.7);
  line([[-12,-42],[-24,-25]],isVampire?'#d6c9e6':'#f3d0ae',5);line([[12,-42],[23,-27]],isVampire?'#d6c9e6':'#f3d0ae',5);
- ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#fff0dc';ctx.fillText(isVampire?(p.boss?'Obervampir':p.name||'Vampir'):'Lotta',0,-104);ctx.restore();}
+ ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#fff0dc';ctx.fillText(isVampire?(p.boss?'Obervampir':p.name||'Vampir'):avatar().name,0,-104);ctx.restore();}
 function label(text,x,y,color='#f3dfb1'){ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(text,x,y);}
-// Leicht erhöhte Kamera hinter Lotta. Sie bleibt sichtbar und bewegt sich seitlich im Bild.
+// Leicht erhöhte Kamera hinter {figur}. Sie bleibt sichtbar und bewegt sich seitlich im Bild.
 function project(x,y){return chaseProject(x,y,player);}
 function unicornPatch(x,y,scale=1){
  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ellipse(0,0,7,4,'#bba8d5');line([[3,-1],[6,-8]],'#bba8d5',4);ellipse(8,-8,4,3,'#bba8d5');poly([[7,-11],[8,-17],[10,-11]],'#edc878');line([[-3,2],[-3,7]],'#bba8d5',2);line([[3,2],[3,7]],'#bba8d5',2);line([[-6,-1],[-12,-5]],'#e3a6c6',3);ctx.restore();
@@ -216,7 +216,7 @@ function draw(){
  if(fallTime>0){ctx.fillStyle='#14101ce0';ctx.fillRect(0,0,960,520);label('Plumps! Die Falltür öffnet sich …',480,260);}
  ctx.fillStyle='#241e35e8';ctx.fillRect(12,12,936,42);ctx.textAlign='left';ctx.font='12px system-ui';ctx.fillStyle='#f0dfb7';ctx.fillText(level.target,24,38);
  ctx.fillStyle='#d3b5e7';ctx.fillRect(20,502,920*player.x/level.width,5);
- // Orientierung für Gegenstände neben oder hinter Lotta, damit alle Funde auffindbar bleiben.
+ // Orientierung für Gegenstände neben oder hinter {figur}, damit alle Funde auffindbar bleiben.
  const remaining=[...gems.filter(g=>!g.collected),...(chapter===2?inventory.filter(k=>!k.collected):[])];
  const closest=remaining.sort((a,b)=>Math.hypot(a.x-player.x,a.y-player.y)-Math.hypot(b.x-player.x,b.y-player.y))[0];
  if(closest){const text=closest.x<player.x-25?'↓ Fund hinter dir':closest.y<player.y-30?'← Fund links':closest.y>player.y+30?'Fund rechts →':'↑ Fund voraus';ctx.fillStyle='#211b32dd';ctx.fillRect(330,65,300,34);label(text,480,88);}

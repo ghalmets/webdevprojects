@@ -39,3 +39,10 @@ export function chaseProject(x,y,lotta){
 export const FLIGHT={speed:145,minHeight:65,maxHeight:195,climbSpeed:85};
 export function flightCollision(lotta,altitude,vampire,height){return closeEncounter(lotta,vampire)&&Math.abs(altitude-height)<32;}
 export function vampireAltitude(time,index){return 125+Math.sin(time*.65+index*1.6)*48;}
+
+export const AVATARS={
+ lea:{name:'Lea',portrait:'lea.svg',description:'Lea im fliederfarbenen Kleid mit rosa Schleife',dress:'#a58cbd',hairTop:'#986847',hair:'#885b3e',highlight:'#c69a69',wings:'#c9b6ed',accessory:'bow',accessoryColor:'#e2aec7'},
+ luna:{name:'Luna',portrait:'luna.svg',description:'Luna im mintfarbenen Kleid mit Sternspange',dress:'#78aa9b',hairTop:'#765039',hair:'#684831',highlight:'#b58b62',wings:'#b9ded6',accessory:'star',accessoryColor:'#f2d49b'},
+ lilly:{name:'Lilly',portrait:'lilly.svg',description:'Lilly im rosafarbenen Kleid mit heller Schleife',dress:'#d284a1',hairTop:'#b18455',hair:'#9b7149',highlight:'#dfb982',wings:'#efd0e3',accessory:'bow',accessoryColor:'#f3d4e3'},
+ hanna:{name:'Hanna',portrait:'hanna.svg',description:'Hanna im blauen Kleid mit roter Schleife',dress:'#7c9bc4',hairTop:'#634737',hair:'#573e31',highlight:'#a37a54',wings:'#c2d8f1',accessory:'bow',accessoryColor:'#d97c82'}
+};

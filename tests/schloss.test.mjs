@@ -92,8 +92,8 @@ test('Begegnung wird erst unmittelbar an Lottas Füßen ausgelöst, nicht weit v
 });
 
 test('Drei Leben pro Kapitel, Schutzzeit und Neustart nur im aktuellen Kapitel',()=>{
- const run=game();run('start();chapter=2;setup();mode="playing";entranceChosen=true;chooseLotta("stern");hurtTimer=0;loseLife("Testtreffer")');assert.equal(run('lives'),2);run('loseLife("Geschützt")');assert.equal(run('lives'),2);
- run('hurtTimer=0;loseLife("Treffer 2");hurtTimer=0;loseLife("Treffer 3")');assert.equal(run('lives'),0);assert.equal(run('mode'),'gameover');run('start()');assert.equal(run('chapter'),2);assert.equal(run('lives'),3);assert.equal(run('selectedLotta'),'stern');
+ const run=game();run('start();chapter=2;setup();mode="playing";entranceChosen=true;chooseLotta("luna");hurtTimer=0;loseLife("Testtreffer")');assert.equal(run('lives'),2);run('loseLife("Geschützt")');assert.equal(run('lives'),2);
+ run('hurtTimer=0;loseLife("Treffer 2");hurtTimer=0;loseLife("Treffer 3")');assert.equal(run('lives'),0);assert.equal(run('mode'),'gameover');run('start()');assert.equal(run('chapter'),2);assert.equal(run('lives'),3);assert.equal(run('selectedLotta'),'luna');
  run('chapter=3;setup()');assert.equal(run('lives'),3);
 });
 test('Pflichtwachen kosten kein Leben; normaler Vampir und Brückenfehler schon',()=>{
@@ -107,4 +107,13 @@ test('Flug bewegt Lotta automatisch vorwärts, Höhensteuerung und Lufttreffer f
  const point={x:500,y:335};assert.ok(!rules.flightCollision(point,180,{x:510,y:335},80));assert.ok(rules.flightCollision(point,120,{x:510,y:335},125));
  run('time=0;player={x:300,y:320};flightHeight=125;hurtTimer=0;vampires=[{x:300,y:320,homeX:300,homeY:320}];update(0)');assert.equal(run('lives'),2);assert.equal(run('mode'),'playing');
  run('player={x:2440,y:400};vampires=[];update(0);update(2);draw()');assert.equal(run('flightHeight'),0);assert.equal(run('mode'),'finished');
+});
+
+test('Lea, Luna, Lilly und Hanna haben eigene Figuren und erscheinen in Gesprächen',()=>{
+ assert.deepEqual(Object.keys(rules.AVATARS),['lea','luna','lilly','hanna']);assert.equal(new Set(Object.values(rules.AVATARS).map(a=>a.dress)).size,4);
+ for(const [id,person] of Object.entries(rules.AVATARS)){
+  const run=game();run(`chooseLotta('${id}');start();beginTalk({name:'Vampirinchen',boss:false})`);assert.equal(run('selectedLotta'),id);assert.ok(run('$("reply-one").textContent').includes(person.name));assert.ok(run('$("talk-thought").textContent').includes(person.name));
+  run('reply(0);reply(0);chapter=4;setup();mode="playing";vampires=[];player={x:2440,y:400};update(0);update(2)');assert.equal(run('selectedLotta'),id);assert.ok(run('$("title").textContent').includes(person.name));
+ }
+ const run=game();run('start();beginTalk({name:"Vampir"});chooseLotta("hanna")');assert.ok(run('$("reply-one").textContent').includes('Hanna'));assert.ok(!run('$("reply-one").textContent').includes('Lea'));
 });

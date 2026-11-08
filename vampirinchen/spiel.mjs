@@ -1,30 +1,35 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude} from './regeln.mjs?v=fluegel-15';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=freundinnen-16';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=fluegel-15';
-const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='schleife';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=freundinnen-16';
+const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
-function say(text){$('dialog').textContent=text;chatTimer=5;}
-function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();$('level').textContent=`${chapter+1} / 5 · ${level.name}`;hud();say(level.target);}
+const avatar=()=>AVATARS[selectedLotta];
+const named=text=>String(text).replaceAll('Lotta',avatar().name).replaceAll('LOTTA',avatar().name.toUpperCase());
+function say(text){$('dialog').textContent=named(text);chatTimer=5;}
+function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();$('level').textContent=named(`${chapter+1} / 5 · ${level.name}`);hud();say(level.target);}
 function hud(){
- $('lives').textContent='♥ '.repeat(lives)+'♡ '.repeat(3-lives);$('lives').setAttribute('aria-label',`${lives} von 3 Leben`);$('control-hint').textContent=chapter===4?'↑ Steigen · ↓ Sinken · ← / → Seitwärts · P Pause':'↑ Vorwärts · ↓ Zurück · ← / → Seitwärts · P Pause';
- $('feeling').textContent=fear>.7?'♡ Starkes Herzklopfen':fear>.3?'♡ Ein bisschen Angst':'♡ Wieder mutiger';
- $('score').textContent=chapter===4?`${Math.round(flightHeight)} m Flughöhe`:chapter===2?`${score}/${gems.length} Steine · ${inventory.filter(k=>k.collected).length}/4 Schlüssel`: `${score} / ${gems.length} ${chapter===1?'Schlüssel':'Mondsteine'}`;
+ $('lives').textContent=named('♥ '.repeat(lives)+'♡ '.repeat(3-lives));$('lives').setAttribute('aria-label',`${lives} von 3 Leben`);$('control-hint').textContent=named(chapter===4?'↑ Steigen · ↓ Sinken · ← / → Seitwärts · P Pause':'↑ Vorwärts · ↓ Zurück · ← / → Seitwärts · P Pause');
+ $('feeling').textContent=named(fear>.7?'♡ Starkes Herzklopfen':fear>.3?'♡ Ein bisschen Angst':'♡ Wieder mutiger');
+ $('score').textContent=named(chapter===4?`${Math.round(flightHeight)} m Flughöhe`:chapter===2?`${score}/${gems.length} Steine · ${inventory.filter(k=>k.collected).length}/4 Schlüssel`: `${score} / ${gems.length} ${chapter===1?'Schlüssel':'Mondsteine'}`);
  $('key-choice').hidden=!(chapter===2&&player.x>current().width-350);
  document.querySelectorAll('[data-lock-key]').forEach((button,i)=>{button.disabled=!inventory[i]?.collected||inventory[i]?.tried||ladderUnlocked;button.textContent=`${inventory[i]?.tried?'✗ ':''}${CELLAR_KEYS[i].name}`;});
- $('lock-status').textContent=ladderUnlocked?'✓ Aufgeschlossen! Halte ↑ an der Leiter.':'Welcher Schlüssel passt? Du darfst alle ausprobieren.';
+ $('lock-status').textContent=named(ladderUnlocked?'✓ Aufgeschlossen! Halte ↑ an der Leiter.':'Welcher Schlüssel passt? Du darfst alle ausprobieren.');
 }
 function chooseLotta(value){
- if(!['schleife','stern'].includes(value))return;selectedLotta=value;
+ if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=value==='stern'?'Lotta im mintfarbenen Kleid mit Sternspange':'Lotta im fliederfarbenen Kleid mit rosa Schleife';
- $('selected-portrait').src=value==='stern'?'lotta-stern.svg?v=fluegel-15':'lotta.svg?v=fluegel-15';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=freundinnen-16';
+ $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
+ document.title=avatar().name+' & Vampirinchen';
+ if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
+
 }
 function loseLife(reason){
  if(hurtTimer>0)return true;
  lives=Math.max(0,lives-1);hurtTimer=1.8;fear=1;hud();
- if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?','Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Lotta bleibt dieselbe.','Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
+ if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?','Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Figur bleibt dieselbe.','Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
  say(`${reason} Ein Herz weniger – noch ${lives} Leben. Du bist kurz geschützt.`);return true;
 }
 function finishHome(){mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN','Gute Nacht, Lotta!','Lotta ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');$('start').focus({preventScroll:true});}
@@ -51,17 +56,17 @@ function tryKey(index){
 }
 function beginTalk(vampire){
  if(mode!=='playing')return;mode='talk';activeTalk=vampire;talkStep=0;keys.clear();
- fear=1;hud();say('Lotta denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=vampire.boss?'Lotta denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'Lotta denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“';
- $('conversation').hidden=false;$('talk-name').textContent=vampire.name;$('talk-portrait').hidden=vampire.name!=='Vampirinchen';
- $('talk-text').textContent=vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, Lotta?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`;
- $('reply-one').textContent=vampire.boss?'Ich wünsche mir Flügel, um nach Hause zu fliegen.':'I-ich bin Lotta … Bitte lass mich vorbei.';
- $('reply-two').textContent=vampire.boss?'Kannst du mir beim Heimfliegen helfen?':'Ich habe ein bisschen Angst. Kannst du mir helfen?';
+ fear=1;hud();say('Lotta denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=named(vampire.boss?'Lotta denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'Lotta denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“');
+ $('conversation').hidden=false;$('talk-name').textContent=named(vampire.name);$('talk-portrait').hidden=vampire.name!=='Vampirinchen';
+ $('talk-text').textContent=named(vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, Lotta?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`);
+ $('reply-one').textContent=named(vampire.boss?'Ich wünsche mir Flügel, um nach Hause zu fliegen.':'I-ich bin Lotta … Bitte lass mich vorbei.');
+ $('reply-two').textContent=named(vampire.boss?'Kannst du mir beim Heimfliegen helfen?':'Ich habe ein bisschen Angst. Kannst du mir helfen?');
  $('reply-one').focus({preventScroll:true});
 }
 function reply(choice){
  if(mode!=='talk'||!activeTalk)return;
- if(talkStep===0){talkStep=1;fear=.55;hud();$('talk-thought').textContent='Lotta atmet tief durch. Ihr Herz klopft noch, aber sie fühlt sich schon etwas sicherer.';$('talk-text').textContent=activeTalk.boss?'Obervampir: „Sehr gern! Für deinen Mut und deine Freundlichkeit schenke ich dir silberne Flügel.“':choice===0?`${activeTalk.name}: „Du brauchst dich vor mir nicht zu fürchten, Lotta. Ich mache dir Platz.“`:`${activeTalk.name}: „Natürlich helfe ich dir. Atme ruhig durch – ich lasse dich vorbei.“`;
- $('reply-one').textContent=activeTalk.boss?'Danke! Ich bin bereit zum Fliegen!':'Danke … jetzt habe ich nicht mehr so viel Angst.';$('reply-two').textContent=activeTalk.boss?'Das ist wunderbar! Danke!':'Puh! Danke. Ich gehe jetzt vorsichtig weiter.';return;}
+ if(talkStep===0){talkStep=1;fear=.55;hud();$('talk-thought').textContent=named('Lotta atmet tief durch. Ihr Herz klopft noch, aber sie fühlt sich schon etwas sicherer.');$('talk-text').textContent=named(activeTalk.boss?'Obervampir: „Sehr gern! Für deinen Mut und deine Freundlichkeit schenke ich dir silberne Flügel.“':choice===0?`${activeTalk.name}: „Du brauchst dich vor mir nicht zu fürchten, Lotta. Ich mache dir Platz.“`:`${activeTalk.name}: „Natürlich helfe ich dir. Atme ruhig durch – ich lasse dich vorbei.“`);
+ $('reply-one').textContent=named(activeTalk.boss?'Danke! Ich bin bereit zum Fliegen!':'Danke … jetzt habe ich nicht mehr so viel Angst.');$('reply-two').textContent=named(activeTalk.boss?'Das ist wunderbar! Danke!':'Puh! Danke. Ich gehe jetzt vorsichtig weiter.');return;}
  fear=.2;hud();const boss=activeTalk.boss;activeTalk.passed=true;activeTalk=null;$('conversation').hidden=true;keys.clear();mode='playing';
  if(boss){wings=true;next('Ein Wunsch wird wahr!','Der Obervampir schenkt Lotta Flügel. Die Kamera begleitet Lotta von hinten durch den Nachthimmel. Fliege nach vorne und zum leuchtenden Haus!');}
  else{say('Lotta atmet auf: „Puh! Das war unheimlich. Aber ich habe mich getraut!“');canvas.focus({preventScroll:true});}
@@ -77,9 +82,9 @@ function showDoors(){
  $('door-one').focus({preventScroll:true});
  say('Drei Türen: Nur eine führt in den Keller. Die anderen führen nach draußen und starten das ganze Abenteuer neu.');
 }
-function overlay(tag,title,text,button){$('tag').textContent=tag;$('title').textContent=title;$('description').textContent=text;$('start').textContent=button;$('overlay').hidden=false;}
-function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent='Pause';return;}if(mode==='chapter')chapter++;if(mode==='ready'||mode==='finished')correctDoor=Math.floor(Math.random()*3);if(mode==='finished'||mode==='outside'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent='Pause';}
-function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent='Weiter';overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
+function overlay(tag,title,text,button){$('tag').textContent=named(tag);$('title').textContent=named(title);$('description').textContent=named(text);$('start').textContent=named(button);$('overlay').hidden=false;}
+function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent=named('Pause');return;}if(mode==='chapter')chapter++;if(mode==='ready'||mode==='finished')correctDoor=Math.floor(Math.random()*3);if(mode==='finished'||mode==='outside'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent=named('Pause');}
+function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent=named('Weiter');overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
 function next(title,text){keys.clear();mode='chapter';$('pause').disabled=true;overlay('DAS ABENTEUER GEHT WEITER',title,text,'Weiter →');$('start').focus({preventScroll:true});}
 function update(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hurtTimer-dt);fear=Math.max(.1,fear-dt*.07);const looming=vampires.some(v=>!v.passed&&v.homeX-player.x>0&&v.homeX-player.x<240);if(looming)fear=Math.max(fear,.55);cooldown=Math.max(0,cooldown-dt);chatTimer=Math.max(0,chatTimer-dt);
  if(fallTime>0){fallTime-=dt;if(fallTime<=0){chapter=2;setup();mode='playing';showDoors();say('Plumps! Lotta ist weich gelandet. Vor ihr sind drei Eingänge – nur einer führt in den richtigen Keller.');}return;}
@@ -149,15 +154,15 @@ function lottaFromBehind(){
  const stride=walking&&!reducedMotion?Math.sin(visualTime*10)*5:0;
  if(chapter!==4)ellipse(0,2,25,8,'#cfe3d775');
  const flap=chapter===4&&!reducedMotion?Math.sin(visualTime*6)*15:0;
- if(wings){ctx.save();ctx.translate(0,flap);poly([[-12,-51],[-78,-91],[-89,-38],[-47,-20],[-13,-33]],selectedLotta==='stern'?'#b9ded6':'#c9b6ed');poly([[12,-51],[78,-91],[89,-38],[47,-20],[13,-33]],selectedLotta==='stern'?'#b9ded6':'#c9b6ed');ctx.restore();}
+ if(wings){ctx.save();ctx.translate(0,flap);poly([[-12,-51],[-78,-91],[-89,-38],[-47,-20],[-13,-33]],avatar().wings);poly([[12,-51],[78,-91],[89,-38],[47,-20],[13,-33]],avatar().wings);ctx.restore();}
  line([[-8,-17],[-9,chapter===4?-5:1+stride]],'#563c49',8);line([[8,-17],[9,chapter===4?-5:1-stride]],'#563c49',8);
  line([[-17,-56],[-25,-30]],'#edc5aa',7);line([[17,-56],[25,-30]],'#edc5aa',7);
- poly([[-14,-67],[14,-67],[25,-18],[-25,-18]],selectedLotta==='stern'?'#78aa9b':'#a58cbd');
- ellipse(0,-88,21,24,selectedLotta==='stern'?'#765039':'#986847');
- poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],selectedLotta==='stern'?'#684831':'#885b3e');
- line([[-12,-87],[-15,-64],[-10,-43]],'#c69a69',3);line([[12,-87],[14,-65],[10,-43]],'#c69a69',3);
- if(selectedLotta==='stern'){poly([[15,-103],[18,-97],[25,-96],[20,-91],[21,-84],[15,-87],[9,-84],[10,-91],[5,-96],[12,-97]],'#f2d49b');}else{poly([[-5,-95],[-20,-103],[-22,-89],[-5,-90],[5,-90],[22,-89],[20,-103],[5,-95]],'#e2aec7');ellipse(0,-93,5,5,'#f3d8e3');}
- label('DU · LOTTA',0,28,'#e8f5e7');
+ poly([[-14,-67],[14,-67],[25,-18],[-25,-18]],avatar().dress);
+ ellipse(0,-88,21,24,avatar().hairTop);
+ poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],avatar().hair);
+ line([[-12,-87],[-15,-64],[-10,-43]],avatar().highlight,3);line([[12,-87],[14,-65],[10,-43]],avatar().highlight,3);
+ if(avatar().accessory==='star'){poly([[15,-103],[18,-97],[25,-96],[20,-91],[21,-84],[15,-87],[9,-84],[10,-91],[5,-96],[12,-97]],'#f2d49b');}else{poly([[-5,-95],[-20,-103],[-22,-89],[-5,-90],[5,-90],[22,-89],[20,-103],[5,-95]],avatar().accessoryColor);ellipse(0,-93,5,5,'#f3d8e3');}
+ label('DU · '+avatar().name.toUpperCase(),0,28,'#e8f5e7');
 }
 function floorPatch(x1,x2,y1,y2,color){const near=Math.max(x1,player.x-85),far=Math.min(x2,player.x+1450);if(near>=far)return;const a=project(near,y1),b=project(near,y2),c=project(far,y2),d=project(far,y1);if(a&&b&&c&&d)poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],color);}
 function draw(){
@@ -214,4 +219,4 @@ $('start').addEventListener('click',start);$('pause').addEventListener('click',p
 window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='doors'&&['1','2','3'].includes(key)&&!e.repeat){e.preventDefault();chooseDoor(Number(key)-1);return;}if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(key)&&mode==='playing'){e.preventDefault();keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
 window.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));window.addEventListener('blur',()=>{keys.clear();if(mode==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')pause();});
 document.querySelectorAll('[data-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')keys.add(button.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>keys.delete(button.dataset.key));});
-setup();
+setup();chooseLotta('lea');

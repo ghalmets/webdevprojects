@@ -185,3 +185,8 @@ Eigenständiges Mathematikprogramm für die 4. Klasse, Zahlenraum wählbar bis 1
 Jedes Kapitel startet mit drei Herzen. Kontakt mit einem normalen Vampir oder Abrutschen von einer Brücke kostet ein Herz; Turmwachen-/Obervampirgespräche und die geplante Falltür kosten keines. Kurze Schutzzeit nach einem Treffer. Bei null Herzen wird nur das aktuelle Kapitel neu gestartet. Die frühere Regel für falsche Kellereingänge bleibt: kompletter Neustart im Garten.
 
 Unten stehen zwei Lotta-Varianten zur Wahl (fliederfarbenes Kleid mit Schleife / mintfarbenes Kleid mit Haarspange). Die Auswahl bleibt über Kapitel und Wiederholungen erhalten. Der letzte Abschnitt ist ein Flug mit automatischer Vorwärtsbewegung, sichtbarem Abstand zum Boden, Schatten und Flügelschlag. ↑ steigen, ↓ sinken, ← / → seitlich steuern. Die 19 Vampire fliegen ebenfalls auf unterschiedlichen Höhen. Kollisionen zählen nur bei räumlicher Nähe und ähnlicher Höhe; keine Gespräche während des Flugs. Rechts vor dem Haus landet Lotta automatisch.
+
+
+### Vier Freundinnen zur Auswahl
+
+Die Figurenauswahl bietet jetzt Lea (fliederfarbenes Kleid), Luna (mintfarbenes Kleid), Lilly (rosa Kleid) und Hanna (blaues Kleid). Jede hat ein eigenes Porträt und eine passende Rückenansicht im Spiel. Der gewählte Name erscheint in Gesprächen, Gedanken, Bildschirmbeschriftung und Abschluss. Die Wahl bleibt über Kapitel und Wiederholungen erhalten. Drei Leben und der echte Höhenflug bleiben erhalten.

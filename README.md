@@ -162,3 +162,8 @@ https://ghalmets.github.io/webdevprojects/lana-labyrinth/
 Neues eigenständiges Spiel mit Kamera leicht oberhalb hinter Lana. Lange mittelbraune Haare, rotes Kleid mit Blumen und lila Sandalen. Vier Pfeiltasten / W A S D oder Bildschirmtasten bewegen die Figur durch drei zufällig generierte, zunehmend größere Labyrinthe. Jedes enthält Sonnentor, Blumentor und Mondtor; alle drei müssen entdeckt werden. Gefundene Tore bleiben markiert, danach geht es wieder hinein und zu den anderen Ausgängen. M / „Karte“ blendet eine vollständige Übersicht ein. Ohne Zeitlimit oder Lebensverlust; Pause mit P / Escape. Hecken direkt vor Lana werden transparent, damit die Figur sichtbar bleibt.
 
 `regeln.mjs` erzeugt die Labyrinthe und prüft Bewegungen; `spiel.mjs` zeichnet die Welt und steuert Tore und Runden.
+
+
+### Lanas Keks-Flucht
+
+Lana hat Kekse stibitzt und flieht zunächst durch Omis Gartenlabyrinth. Danach folgt der dunkle Friedhof und ein letzter Friedhofsabschnitt. Omi verfolgt sie in allen drei Etappen mit echter Wegsuche durch die begehbaren Zellen und bleibt langsamer als Lana. Vier Sekunden Vorsprung am Start. Wird Lana eingeholt, gibt es einen neuen Versuch im selben Labyrinth; bereits entdeckte Tore bleiben gespeichert. Drei verschiedene Tore pro Abschnitt. Auf dem Friedhof helfen Laternenlicht, Nordpfeil, Keks-Spuren und Karte. Während die Karte offen ist, pausiert die gesamte Verfolgung. Auf der Karte: Rot ist Lana, Lila ist Omi. Am Ende wartet Lana am sicheren Tor auf Omi und teilt die übrigen Kekse.

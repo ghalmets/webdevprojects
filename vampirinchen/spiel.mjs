@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=haare-9';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=lottas-haare-10';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=haare-9';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=lottas-haare-10';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0;
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -107,7 +107,7 @@ function character(p,isVampire){const bob=mode==='playing'?Math.sin(time*9)*2:0;
  poly([[-12,-49],[12,-49],[19,-9],[-19,-9]],isVampire?'#5d416f':'#d88b78');
  ellipse(0,-65,19,23,isVampire?'#e3d9ed':'#f3d0ae');
  if(isVampire){poly([[-20,-66],[-20,-85],[0,-93],[20,-82],[18,-63],[7,-79],[0,-75],[-8,-80]],'#382a4c');poly([[-5,-55],[-1,-48],[2,-55]],'white');}
- else{poly([[-20,-54],[-23,-80],[-10,-91],[12,-88],[24,-70],[20,-48],[13,-55],[13,-74],[-8,-80],[-13,-64]],'#986847');ellipse(-17,-79,8,5,'#e6b9d4');}
+ else{poly([[-20,-54],[-23,-80],[-10,-91],[12,-88],[24,-70],[27,-18],[18,-4],[12,-17],[13,-55],[13,-74],[-8,-80],[-13,-64],[-15,-18],[-24,-6],[-28,-20]],'#986847');line([[-21,-56],[-23,-34],[-20,-14]],'#c39562',2);line([[21,-56],[23,-34],[20,-14]],'#c39562',2);ellipse(-17,-79,8,5,'#e6b9d4');}
  if(p.boss)poly([[-20,-88],[-24,-110],[-8,-99],[0,-116],[9,-99],[24,-110],[20,-88]],'#e2bf6e');
  ellipse(-6,-66,2,2,'#47354c');ellipse(7,-66,2,2,'#47354c');line([[-4,-56],[1,-54],[6,-56]],'#9e6474',1.7);
  line([[-12,-42],[-24,-25]],isVampire?'#d6c9e6':'#f3d0ae',5);line([[12,-42],[23,-27]],isVampire?'#d6c9e6':'#f3d0ae',5);
@@ -145,7 +145,14 @@ function draw(){
  if(o.type==='choiceDoor'){ctx.fillStyle=['#795c89','#5b7978','#9b7856'][o.number-1];ctx.fillRect(-32,-125,64,125);line([[-32,0],[-32,-125],[32,-125],[32,0]],'#d5b68b',4);ellipse(20,-60,4,4,'#e9cf8f');label('TÜR '+o.number,0,-145);}
  if(o.type==='door'||o.type==='house'){ctx.fillStyle='#a68a83';ctx.fillRect(-65,-160,130,160);poly([[-80,-160],[0,-225],[80,-160]],'#574361');ctx.fillStyle='#f1cf87';ctx.fillRect(-20,-65,40,65);label(o.type==='house'?'ZU HAUSE':'SCHLOSS',0,-235);}
  ctx.restore();}
- // Nur Lottas Hände, im Flug die eigenen Flügel: keine Spielfigur von außen.
+ // Lottas lange Haare fallen links und rechts über ihre Schultern ins Blickfeld.
+ for(const side of [-1,1]){
+  const edge=side<0?0:960;
+  poly([[edge,270],[edge-side*25,330],[edge-side*42,400],[edge-side*76,468],[edge-side*83,520],[edge,520]],'#775039');
+  line([[edge-side*12,320],[edge-side*23,380],[edge-side*53,450],[edge-side*59,510]],'#b98654',7);
+  line([[edge-side*8,365],[edge-side*14,415],[edge-side*40,485]],'#94643f',4);
+ }
+ // Hände und im Flug die eigenen Flügel: Die Kamera bleibt in Lottas Augen.
  const bob=mode==='playing'?Math.sin(time*8)*3:0;const trembling=reducedMotion?0:Math.sin(visualTime*32)*fear*2.5;ellipse(150+trembling,515+bob,35,25,'#edc5aa');ellipse(810-trembling,515-bob,35,25,'#edc5aa');
  if(wings){poly([[0,490],[45,350],[150,430],[225,510]],'#c9b6ed');poly([[960,490],[915,350],[810,430],[735,510]],'#c9b6ed');}
  if(fallTime>0){ctx.fillStyle='#14101ce0';ctx.fillRect(0,0,960,520);label('Plumps! Die Falltür öffnet sich …',480,260);}

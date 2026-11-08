@@ -190,3 +190,8 @@ Unten stehen zwei Lotta-Varianten zur Wahl (fliederfarbenes Kleid mit Schleife /
 ### Vier Freundinnen zur Auswahl
 
 Die Figurenauswahl bietet jetzt Lea (fliederfarbenes Kleid), Luna (mintfarbenes Kleid), Lilly (rosa Kleid) und Hanna (blaues Kleid). Jede hat ein eigenes Porträt und eine passende Rückenansicht im Spiel. Der gewählte Name erscheint in Gesprächen, Gedanken, Bildschirmbeschriftung und Abschluss. Die Wahl bleibt über Kapitel und Wiederholungen erhalten. Drei Leben und der echte Höhenflug bleiben erhalten.
+
+
+### Individuelle Outfits der Freundinnen
+
+Lea: gelbes Kleid, lila Sandalen, lange mittelbraune Haare. Lilly: grüne Hose, braunes T-Shirt, braune Schuhe, blonde schulterlange Haare. Luna: wuschelige schwarze Haare, dunkle Haut, dunkelblaues T-Shirt, schwarzer Rock (keine Jeans), braune Schuhe. Hanna: gepunktete Leggings, weißes T-Shirt mit Einhornmotiv, weiße Schuhe, mittelbraune Haare. Porträts und Rückenansichten verwenden jeweils passende Kleidung, Haare und Hautfarben. Alle vier sind gleich spielbar.

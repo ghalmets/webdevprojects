@@ -41,8 +41,8 @@ export function flightCollision(lotta,altitude,vampire,height){return closeEncou
 export function vampireAltitude(time,index){return 125+Math.sin(time*.65+index*1.6)*48;}
 
 export const AVATARS={
- lea:{name:'Lea',portrait:'lea.svg',description:'Lea im fliederfarbenen Kleid mit rosa Schleife',dress:'#a58cbd',hairTop:'#986847',hair:'#885b3e',highlight:'#c69a69',wings:'#c9b6ed',accessory:'bow',accessoryColor:'#e2aec7'},
- luna:{name:'Luna',portrait:'luna.svg',description:'Luna im mintfarbenen Kleid mit Sternspange',dress:'#78aa9b',hairTop:'#765039',hair:'#684831',highlight:'#b58b62',wings:'#b9ded6',accessory:'star',accessoryColor:'#f2d49b'},
- lilly:{name:'Lilly',portrait:'lilly.svg',description:'Lilly im rosafarbenen Kleid mit heller Schleife',dress:'#d284a1',hairTop:'#b18455',hair:'#9b7149',highlight:'#dfb982',wings:'#efd0e3',accessory:'bow',accessoryColor:'#f3d4e3'},
- hanna:{name:'Hanna',portrait:'hanna.svg',description:'Hanna im blauen Kleid mit roter Schleife',dress:'#7c9bc4',hairTop:'#634737',hair:'#573e31',highlight:'#a37a54',wings:'#c2d8f1',accessory:'bow',accessoryColor:'#d97c82'}
+ lea:{name:'Lea',portrait:'lea.svg',description:'Lea mit mittelbraunen langen Haaren, gelbem Kleid und lila Sandalen',outfit:'dress',dress:'#e6c453',top:'#e6c453',bottom:'#e6c453',skin:'#edc5aa',shoes:'#9966b4',sandals:true,hairStyle:'long',hairTop:'#986847',hair:'#885b3e',highlight:'#c69a69',wings:'#e6d4a5'},
+ luna:{name:'Luna',portrait:'luna.svg',description:'Luna mit wuscheligen schwarzen Haaren, dunkler Haut, dunkelblauem T-Shirt, schwarzem Rock und braunen Schuhen',outfit:'skirt',dress:'#25242b',top:'#243c68',bottom:'#25242b',skin:'#8d583e',shoes:'#765039',sandals:false,hairStyle:'curly',hairTop:'#25212a',hair:'#17151d',highlight:'#443746',wings:'#b8c8eb'},
+ lilly:{name:'Lilly',portrait:'lilly.svg',description:'Lilly mit blonden schulterlangen Haaren, braunem T-Shirt, grüner Hose und braunen Schuhen',outfit:'pants',dress:'#678b55',top:'#886149',bottom:'#678b55',skin:'#edc5aa',shoes:'#765039',sandals:false,hairStyle:'shoulder',hairTop:'#d6b575',hair:'#c29d5e',highlight:'#efdc9b',wings:'#d5dfb5'},
+ hanna:{name:'Hanna',portrait:'hanna.svg',description:'Hanna mit mittelbraunen Haaren, weißem Einhorn-T-Shirt, gepunkteten Leggings und weißen Schuhen',outfit:'leggings',dress:'#8d719d',top:'#fffaf0',bottom:'#8d719d',skin:'#edc5aa',shoes:'#fffaf4',sandals:false,hairStyle:'shoulder',hairTop:'#986847',hair:'#885b3e',highlight:'#c69a69',wings:'#e4d7f1',unicorn:true}
 };

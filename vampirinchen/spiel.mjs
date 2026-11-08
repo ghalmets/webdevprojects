@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=freundinnen-16';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=outfits-17';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=freundinnen-16';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=outfits-17';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -20,7 +20,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=freundinnen-16';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=outfits-17';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -149,20 +149,34 @@ function character(p,isVampire){const bob=mode==='playing'?Math.sin(time*9)*2:0;
 function label(text,x,y,color='#f3dfb1'){ctx.font='bold 14px system-ui';ctx.textAlign='center';ctx.fillStyle=color;ctx.fillText(text,x,y);}
 // Leicht erhöhte Kamera hinter Lotta. Sie bleibt sichtbar und bewegt sich seitlich im Bild.
 function project(x,y){return chaseProject(x,y,player);}
+function unicornPatch(x,y,scale=1){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ellipse(0,0,7,4,'#bba8d5');line([[3,-1],[6,-8]],'#bba8d5',4);ellipse(8,-8,4,3,'#bba8d5');poly([[7,-11],[8,-17],[10,-11]],'#edc878');line([[-3,2],[-3,7]],'#bba8d5',2);line([[3,2],[3,7]],'#bba8d5',2);line([[-6,-1],[-12,-5]],'#e3a6c6',3);ctx.restore();
+}
 function lottaFromBehind(){
- const walking=chapter!==4&&mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k=>keys.has(k));
- const stride=walking&&!reducedMotion?Math.sin(visualTime*10)*5:0;
+ const a=avatar(),walking=chapter!==4&&mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k=>keys.has(k));
+ const stride=walking&&!reducedMotion?Math.sin(visualTime*10)*5:0,footLeft=chapter===4?-4:stride,footRight=chapter===4?-4:-stride;
  if(chapter!==4)ellipse(0,2,25,8,'#cfe3d775');
  const flap=chapter===4&&!reducedMotion?Math.sin(visualTime*6)*15:0;
- if(wings){ctx.save();ctx.translate(0,flap);poly([[-12,-51],[-78,-91],[-89,-38],[-47,-20],[-13,-33]],avatar().wings);poly([[12,-51],[78,-91],[89,-38],[47,-20],[13,-33]],avatar().wings);ctx.restore();}
- line([[-8,-17],[-9,chapter===4?-5:1+stride]],'#563c49',8);line([[8,-17],[9,chapter===4?-5:1-stride]],'#563c49',8);
- line([[-17,-56],[-25,-30]],'#edc5aa',7);line([[17,-56],[25,-30]],'#edc5aa',7);
- poly([[-14,-67],[14,-67],[25,-18],[-25,-18]],avatar().dress);
- ellipse(0,-88,21,24,avatar().hairTop);
- poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],avatar().hair);
- line([[-12,-87],[-15,-64],[-10,-43]],avatar().highlight,3);line([[12,-87],[14,-65],[10,-43]],avatar().highlight,3);
- if(avatar().accessory==='star'){poly([[15,-103],[18,-97],[25,-96],[20,-91],[21,-84],[15,-87],[9,-84],[10,-91],[5,-96],[12,-97]],'#f2d49b');}else{poly([[-5,-95],[-20,-103],[-22,-89],[-5,-90],[5,-90],[22,-89],[20,-103],[5,-95]],avatar().accessoryColor);ellipse(0,-93,5,5,'#f3d8e3');}
- label('DU · '+avatar().name.toUpperCase(),0,28,'#e8f5e7');
+ if(wings){ctx.save();ctx.translate(0,flap);poly([[-12,-51],[-78,-91],[-89,-38],[-47,-20],[-13,-33]],a.wings);poly([[12,-51],[78,-91],[89,-38],[47,-20],[13,-33]],a.wings);ctx.restore();}
+ const trousers=a.outfit==='pants'||a.outfit==='leggings';
+ line([[-8,-31],[-9,footLeft]],trousers?a.bottom:a.skin,trousers?12:7);line([[8,-31],[9,footRight]],trousers?a.bottom:a.skin,trousers?12:7);
+ if(a.outfit==='leggings')for(const side of [-1,1])for(let i=0;i<4;i++)ellipse(side*9+(i%2?2:-2),-27+i*7,1.8,1.8,'#f4dbe9');
+ ellipse(-10,footLeft+2,8,4,a.shoes);ellipse(10,footRight+2,8,4,a.shoes);
+ if(a.sandals){line([[-13,footLeft],[-6,footLeft]],'#d8b7ec',2);line([[6,footRight],[13,footRight]],'#d8b7ec',2);}
+ line([[-17,-55],[-25,-30]],a.skin,7);line([[17,-55],[25,-30]],a.skin,7);
+ if(a.outfit==='dress')poly([[-14,-67],[14,-67],[25,-18],[-25,-18]],a.dress);
+ else{poly([[-16,-67],[16,-67],[20,-35],[-20,-35]],a.top);if(a.outfit==='skirt')poly([[-16,-36],[16,-36],[25,-16],[-25,-16]],a.bottom);else{ctx.fillStyle=a.bottom;ctx.fillRect(-17,-36,34,9);}}
+ if(a.unicorn)unicornPatch(0,-44,.75);
+ if(a.hairStyle==='curly'){
+  ellipse(0,-88,24,24,a.hair);
+  for(let i=0;i<12;i++){const angle=i*Math.PI/6;ellipse(Math.cos(angle)*20,-88+Math.sin(angle)*20,8,8,i%3?a.hair:a.hairTop);}
+  for(const [x,y] of [[-10,-96],[7,-94],[-4,-82],[13,-80]])line([[x-3,y],[x,y-3],[x+3,y]],a.highlight,1.5);
+ }else{
+  ellipse(0,-88,21,24,a.hairTop);
+  if(a.hairStyle==='long'){poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],a.hair);line([[-12,-87],[-15,-64],[-10,-43]],a.highlight,3);line([[12,-87],[14,-65],[10,-43]],a.highlight,3);}
+  else{poly([[-20,-91],[-23,-73],[-20,-59],[-10,-62],[0,-59],[11,-62],[21,-59],[23,-75],[20,-92]],a.hair);line([[-13,-86],[-16,-69],[-13,-63]],a.highlight,2);line([[13,-86],[16,-69],[13,-63]],a.highlight,2);}
+ }
+ label('DU · '+a.name.toUpperCase(),0,28,'#e8f5e7');
 }
 function floorPatch(x1,x2,y1,y2,color){const near=Math.max(x1,player.x-85),far=Math.min(x2,player.x+1450);if(near>=far)return;const a=project(near,y1),b=project(near,y2),c=project(far,y2),d=project(far,y1);if(a&&b&&c&&d)poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],color);}
 function draw(){

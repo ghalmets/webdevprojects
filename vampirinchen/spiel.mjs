@@ -1,6 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=dreissig-8';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=haare-9';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=haare-9';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0;
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -23,7 +24,7 @@ function tryKey(index){
 function beginTalk(vampire){
  if(mode!=='playing')return;mode='talk';activeTalk=vampire;vampire.y=player.y;talkStep=0;keys.clear();
  fear=1;hud();say('Lotta denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=vampire.boss?'Lotta denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'Lotta denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“';
- $('conversation').hidden=false;$('talk-name').textContent=vampire.name;
+ $('conversation').hidden=false;$('talk-name').textContent=vampire.name;$('talk-portrait').hidden=vampire.name!=='Vampirinchen';
  $('talk-text').textContent=vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, Lotta?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`;
  $('reply-one').textContent=vampire.boss?'Ich wünsche mir Flügel, um nach Hause zu fliegen.':'I-ich bin Lotta … Bitte lass mich vorbei.';
  $('reply-two').textContent=vampire.boss?'Kannst du mir beim Heimfliegen helfen?':'Ich habe ein bisschen Angst. Kannst du mir helfen?';
@@ -94,6 +95,12 @@ function ellipse(x,y,rx,ry,color){ctx.fillStyle=color;ctx.beginPath();ctx.ellips
 function poly(points,color){ctx.fillStyle=color;ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.closePath();ctx.fill();}
 function line(points,color,width=3){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.beginPath();points.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();}
 function character(p,isVampire){const bob=mode==='playing'?Math.sin(time*9)*2:0;ctx.save();ctx.translate(p.x,p.y+bob);ellipse(0,7,23,8,'#17132966');
+ if(isVampire&&p.name==='Vampirinchen'){
+  if(vampirinchenPortrait&&vampirinchenPortrait.complete&&vampirinchenPortrait.naturalWidth){ctx.drawImage(vampirinchenPortrait,-47,-105,94,115);}
+  else{poly([[-21,-78],[-26,-24],[-17,-11],[20,-11],[28,-25],[21,-78]],'#624573');poly([[-15,-52],[-37,0],[0,-12],[37,0],[15,-52]],'#ba7e9f');poly([[-12,-47],[12,-47],[20,-7],[-20,-7]],'#895e98');ellipse(0,-65,18,23,'#f0e1ed');line([[-18,-74],[-23,-48],[-18,-20]],'#624573',9);line([[18,-74],[23,-48],[18,-20]],'#624573',9);ellipse(-6,-66,2,3,'#4a345c');ellipse(6,-66,2,3,'#4a345c');line([[-5,-55],[0,-52],[5,-55]],'#a96d8e',2);ellipse(17,-82,4,4,'#f2d7a0');}
+  ctx.textAlign='center';ctx.font='bold 12px system-ui';ctx.fillStyle='#f3d8eb';ctx.fillText('Vampirinchen',0,-112);ctx.restore();return;
+ }
+
  if(!isVampire && wings){poly([[-12,-40],[-80,-92],[-92,-40],[-55,-5],[-12,-18]],'#c9b6ed');poly([[12,-40],[80,-92],[92,-40],[55,-5],[12,-18]],'#c9b6ed');}
  if(isVampire)poly([[-13,-59],[-39,-3],[0,-14],[36,0],[14,-59]],'#974d79');
  line([[-8,-12],[-10,4]],'#453951',6);line([[8,-12],[10,4]],'#453951',6);

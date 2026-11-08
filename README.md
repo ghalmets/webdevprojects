@@ -122,7 +122,7 @@ Zahlenraum bis 100: reine Zehner addieren (30 + 40), reiner Zehner + gemischte z
 
 ### Großes Vampirabenteuer
 
-20 Vampire und 14 Mondsteine im 4400 Pixel großen Garten. Im Schloss stehen zwei Hängebrücken zur Auswahl: Mondbrücke oben und Sternbrücke unten. Eine Brücke muss vollständig überquert werden, bevor die Falltür freigegeben wird. Der Keller ist 5600 Pixel lang: 28 Vampire, acht Mondsteine und vier Schlüssel. An der Leiter werden die eingesammelten Schlüssel per Bildschirmknopf ausprobiert. Ein zufälliger Schlüssel passt; falsche Versuche kosten nichts. Nach allen Funden und dem Aufschließen mit ↑ klettern. Im Turm warten fünf weitere Vampire und acht Zaubersteine. Der Obervampir und der Heimflug bleiben erhalten.
+30 Vampire und 14 Mondsteine im 4400 Pixel großen Garten. Im Schloss stehen zwei Hängebrücken zur Auswahl: Mondbrücke oben und Sternbrücke unten. Eine Brücke muss vollständig überquert werden, bevor die Falltür freigegeben wird. Der Keller ist 5600 Pixel lang: 30 Vampire, acht Mondsteine und vier Schlüssel. An der Leiter werden die eingesammelten Schlüssel per Bildschirmknopf ausprobiert. Ein zufälliger Schlüssel passt; falsche Versuche kosten nichts. Nach allen Funden und dem Aufschließen mit ↑ klettern. Im Turm warten 27 weitere Vampire und zwei Turmwachen und acht Zaubersteine. Der Obervampir und der Heimflug bleiben erhalten.
 
 
 ### Lottas Blick und Gespräche
@@ -143,3 +143,8 @@ Aktueller Ablauf: erst die Brücke überqueren, dann durch die Falltür auf Heu 
 ### Lotta hat Angst
 
 Lotta zeigt bei Vampirbegegnungen Angst: Gedanken vor dem Gespräch, vorsichtige Antworten, eine Herzklopfen-Anzeige und leicht zitternde Hände in der Ich-Perspektive. Während des Gesprächs beruhigt sie sich schrittweise; nach dem Abschied atmet sie auf. Vampire antworten beruhigend. Die Falltür erschreckt sie ebenfalls. Die Angst verursacht keine zusätzlichen Strafen oder verlorene Gegenstände.
+
+
+### 30 Vampire in jedem Level
+
+Garten, Brückensaal, Keller und Heimflug enthalten je 30 Vampire mit Gesprächen. Im Turm sind es 27 normale Vampire, zwei Turmwachen und der Obervampir – insgesamt ebenfalls 30. Die Brücken-Vampire stehen vor und hinter der Schlucht; beide Brücken bleiben begehbar.

@@ -20,7 +20,7 @@ test('Beide Brücken, Schlüsselauswahl und alle Kapitel funktionieren',()=>{
  run('for(const g of gems){player={x:g.x,y:g.y};update(0);}for(const k of inventory){player={x:k.x,y:k.y};update(0);}player={x:5450,y:350};tryKey((correctKey+1)%4)');assert.ok(!run('ladderUnlocked'));
  run('tryKey(correctKey);keys.add("ArrowUp");for(let i=0;i<100;i++)update(.02);draw()');assert.equal(run('mode'),'chapter');
  run('start();vampires.forEach(v=>v.passed=true);for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:1600,y:370};keys.add("ArrowUp");update(0);draw()');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
- run('start();player={x:2490,y:420};update(0);draw()');assert.equal(run('mode'),'finished');
+ run('start();vampires.forEach(v=>v.passed=true);player={x:2490,y:420};update(0);draw()');assert.equal(run('mode'),'finished');
  run('start();pause();draw()');assert.equal(run('chapter'),0);assert.ok(!run('wings'));assert.equal(run('mode'),'paused');
 });
 test('Alle Sammelobjekte sind über begehbare Wege erreichbar',()=>{
@@ -75,4 +75,13 @@ test('Lottas Angst steigt bei Vampiren und sinkt während eines beruhigenden Ges
  assert.equal(run('fear'),1);assert.ok(run('$("talk-thought").textContent').includes('zittern'));assert.ok(run('$("reply-two").textContent').includes('Angst'));
  run('reply(1)');assert.equal(run('fear'),.55);assert.ok(run('$("talk-thought").textContent').includes('sicherer'));
  run('reply(0)');assert.equal(run('fear'),.2);assert.equal(run('mode'),'playing');assert.ok(run('$("dialog").textContent').includes('getraut'));
+});
+
+test('Genau 30 Vampire je Level einschließlich Obervampir und seiner beiden Wachen',()=>{
+ for(const [index,level] of rules.CHAPTERS.entries()){
+  assert.equal(level.vampires.length+(index===3?1:0),30,level.name);
+  for(const v of level.vampires){assert.ok(v.x>level.start.x&&v.x<level.width-150);if(index===1)assert.ok(v.x<rules.BRIDGE_SPAN.left||v.x>rules.BRIDGE_SPAN.right);}
+ }
+ assert.equal(rules.CHAPTERS[3].vampires.filter(v=>v.guard).length,2);
+ const run=game();run('start();chapter=4;setup();mode="playing";player={x:300,y:300};update(0)');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.equal(run('mode'),'playing');
 });

@@ -153,3 +153,12 @@ Garten, Brückensaal, Keller und Heimflug enthalten je 19 Vampire mit Gespräche
 ### Aktuelle Kamera und Begegnungen
 
 Die Kamera sitzt jetzt leicht erhöht hinter Lotta. Ihre vollständige Rückenansicht mit langen Haaren, Kleid und Füßen ist im unteren Bildbereich sichtbar und bewegt sich beim Lenken seitlich. Die alten Haare am Bildschirmrand und losgelösten Hände wurden entfernt. Projektion und Begegnung nutzen dieselben Weltpositionen. Ein Gespräch beginnt erst bei höchstens 32 Pixeln Abstand entlang des Weges und 26 Pixeln seitlichem Abstand. Es gibt keine Sperrlinie quer über den Weg; normalen Vampiren darf man seitlich ausweichen. Bereits besprochene Vampire lösen kein weiteres Gespräch aus. Die zwei Turmwachen bleiben verpflichtend: Erst nach beiden Gesprächen kann der Obervampir die Flügel schenken.
+
+
+## Lana im Labyrinth
+
+https://ghalmets.github.io/webdevprojects/lana-labyrinth/
+
+Neues eigenständiges Spiel mit Kamera leicht oberhalb hinter Lana. Lange mittelbraune Haare, rotes Kleid mit Blumen und lila Sandalen. Vier Pfeiltasten / W A S D oder Bildschirmtasten bewegen die Figur durch drei zufällig generierte, zunehmend größere Labyrinthe. Jedes enthält Sonnentor, Blumentor und Mondtor; alle drei müssen entdeckt werden. Gefundene Tore bleiben markiert, danach geht es wieder hinein und zu den anderen Ausgängen. M / „Karte“ blendet eine vollständige Übersicht ein. Ohne Zeitlimit oder Lebensverlust; Pause mit P / Escape. Hecken direkt vor Lana werden transparent, damit die Figur sichtbar bleibt.
+
+`regeln.mjs` erzeugt die Labyrinthe und prüft Bewegungen; `spiel.mjs` zeichnet die Welt und steuert Tore und Runden.

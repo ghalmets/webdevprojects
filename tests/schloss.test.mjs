@@ -76,9 +76,9 @@ test('Lottas Angst steigt bei Vampiren und sinkt während eines beruhigenden Ges
  run('reply(0)');assert.equal(run('fear'),.2);assert.equal(run('mode'),'playing');assert.ok(run('$("dialog").textContent').includes('getraut'));
 });
 
-test('Genau 24 Vampire je Level einschließlich Obervampir und seiner beiden Wachen',()=>{
+test('Genau 19 Vampire je Level einschließlich Obervampir und seiner beiden Wachen',()=>{
  for(const [index,level] of rules.CHAPTERS.entries()){
-  assert.equal(level.vampires.length+(index===3?1:0),24,level.name);
+  assert.equal(level.vampires.length+(index===3?1:0),19,level.name);
   for(const v of level.vampires){assert.ok(v.x>level.start.x&&v.x<level.width-150);if(index===1)assert.ok(v.x<rules.BRIDGE_SPAN.left||v.x>rules.BRIDGE_SPAN.right);}
  }
  assert.equal(rules.CHAPTERS[3].vampires.filter(v=>v.guard).length,2);

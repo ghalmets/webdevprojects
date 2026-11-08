@@ -123,3 +123,8 @@ Zahlenraum bis 100: reine Zehner addieren (30 + 40), reiner Zehner + gemischte z
 ### Großes Vampirabenteuer
 
 20 Vampire und 14 Mondsteine im 4400 Pixel großen Garten. Im Schloss stehen zwei Hängebrücken zur Auswahl: Mondbrücke oben und Sternbrücke unten. Eine Brücke muss vollständig überquert werden, bevor die Falltür freigegeben wird. Der Keller ist 5600 Pixel lang: 28 Vampire, acht Mondsteine und vier Schlüssel. An der Leiter werden die eingesammelten Schlüssel per Bildschirmknopf ausprobiert. Ein zufälliger Schlüssel passt; falsche Versuche kosten nichts. Nach allen Funden und dem Aufschließen mit ↑ klettern. Im Turm warten fünf weitere Vampire und acht Zaubersteine. Der Obervampir und der Heimflug bleiben erhalten.
+
+
+### Lottas Blick und Gespräche
+
+Das Vampirspiel wird nun aus Lottas eigener Perspektive gespielt: ↑ / W vorwärts, ↓ / S zurück, ← / → oder A / D seitwärts. Die Kamera schaut immer zum Kapitelziel. Eine Fundanzeige hilft bei Gegenständen neben oder hinter Lotta. Mondbrücke liegt links, Sternbrücke rechts. Vampire bewachen den gesamten Wegabschnitt; erst ein Gespräch mit zwei Antwortschritten gibt den Weg frei. Antworten per Bildschirmknopf oder 1 / 2. Während eines Gesprächs steht die Spielwelt still. Bereits angesprochene Vampire bleiben freundlich und halten Lotta nicht erneut auf. Auch die Flügel bekommt sie in einem Gespräch mit dem Obervampir.

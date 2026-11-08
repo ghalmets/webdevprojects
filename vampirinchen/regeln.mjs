@@ -20,11 +20,11 @@ export const CELLAR_KEYS=[{x:750,y:230,name:'Mondschlüssel'},{x:2050,y:435,name
 const stones=(count,from,to)=>Array.from({length:count},(_,i)=>({x:from+i*(to-from)/(count-1),y:i%2?435:230}));
 const patrols=(count,from,to)=>Array.from({length:count},(_,i)=>({x:from+i*(to-from)/(count-1),y:320}));
 export const CHAPTERS = [
- {name:'Der riesige Schlossgarten',width:4400,start:{x:80,y:430},target:'Sammle 14 Mondsteine. Viele Vampire bewachen den Weg zum Schloss rechts.',gems:stones(14,300,3900),blocks:[{x:550,y:290,w:230,h:65},{x:1400,y:350,w:220,h:65},{x:2400,y:280,w:220,h:70},{x:3300,y:340,w:200,h:65}],vampires:patrols(20,460,4050)},
- {name:'Die zwei Hängebrücken',width:2700,start:{x:80,y:350},target:'Hole den Schlüssel. Wähle Mondbrücke oben oder Sternbrücke unten. Danach zur Falltür!',gems:[{x:380,y:350}],blocks:[],vampires:[{x:520,y:320},{x:1750,y:320},{x:1950,y:320}]},
+ {name:'Der riesige Schlossgarten',width:4400,start:{x:80,y:430},target:'Sammle 14 Mondsteine. Viele Vampire bewachen den Weg zum Schloss vor dir.',gems:stones(14,300,3900),blocks:[{x:550,y:290,w:230,h:65},{x:1400,y:350,w:220,h:65},{x:2400,y:280,w:220,h:70},{x:3300,y:340,w:200,h:65}],vampires:patrols(20,460,4050)},
+ {name:'Die zwei Hängebrücken',width:2700,start:{x:80,y:350},target:'Hole den Schlüssel. Wähle Mondbrücke links oder Sternbrücke rechts. Danach zur Falltür!',gems:[{x:380,y:350}],blocks:[],vampires:[{x:520,y:320},{x:1750,y:320},{x:1950,y:320}]},
  {name:'Der lange Schlosskeller',width:5600,start:{x:80,y:435},target:'Sammle 8 Mondsteine und 4 Schlüssel. Errate bei der Leiter den richtigen Schlüssel.',gems:stones(8,400,5000),blocks:[{x:450,y:290,w:200,h:70},{x:1390,y:340,w:230,h:65},{x:2500,y:280,w:220,h:65},{x:3650,y:340,w:220,h:65},{x:4600,y:280,w:210,h:65}],vampires:patrols(28,550,5150)},
- {name:'Der Turm des Obervampirs',width:1800,start:{x:80,y:435},target:'Sammle 8 Zaubersteine. Beim Obervampir rechts ↑ für deinen Flügelwunsch drücken.',gems:stones(8,250,1320),blocks:[],vampires:patrols(5,450,1150)},
- {name:'Mit Flügeln nach Hause',width:2600,start:{x:100,y:300},target:'Du kannst fliegen! Folge dem Mond nach rechts bis zu Lottas Haus.',gems:[],blocks:[],vampires:[]}
+ {name:'Der Turm des Obervampirs',width:1800,start:{x:80,y:435},target:'Sammle 8 Zaubersteine. Beim Obervampir vor dir ↑ für deinen Flügelwunsch drücken.',gems:stones(8,250,1320),blocks:[],vampires:patrols(5,450,1150)},
+ {name:'Mit Flügeln nach Hause',width:2600,start:{x:100,y:300},target:'Du kannst fliegen! Fliege nach vorne und rechts bis zu Lottas Haus.',gems:[],blocks:[],vampires:[]}
 ];
 export function bridgeAt(y){return BRIDGES.findIndex(b=>y>=b.top+4&&y<=b.bottom-4);}
 export function onBridge(x,y){return x<BRIDGE_SPAN.left||x>BRIDGE_SPAN.right||bridgeAt(y)!==-1;}

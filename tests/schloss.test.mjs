@@ -4,13 +4,22 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import * as rules from '../vampirinchen/regeln.mjs';
 function game(){const nodes=new Map(),pen=new Proxy({},{get:()=>()=>{},set:()=>true});const el=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',addEventListener(){},focus(){},getContext:()=>pen});return nodes.get(id);};const box={...rules,document:{getElementById:el,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},requestAnimationFrame(){},Math};vm.createContext(box);vm.runInContext(fs.readFileSync(new URL('../vampirinchen/spiel.mjs',import.meta.url),'utf8').replace(/^import .*\n/,''),box);return s=>vm.runInContext(s,box);}
-test('Alle Kapitel führen über Falltür, Leiter und Flügel sicher nach Hause',()=>{
- const run=game();run('start();player={x:2300,y:400};update(0)');assert.equal(run('mode'),'playing');
- run('for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:2300,y:400};update(0)');assert.equal(run('mode'),'chapter');
- run('start();player={x:380,y:350};update(0);player={x:900,y:350};update(0);draw()');assert.equal(run('chapter'),1);
- run('player={x:1200,y:350};update(0);player={x:1600,y:350};update(0);draw()');assert.ok(run('fallTime')>0);run('update(1.4)');assert.equal(run('mode'),'chapter');
- run('start();player={x:1100,y:230};update(0);player={x:1970,y:350};keys.add("ArrowUp");for(let i=0;i<100;i++)update(.02);draw()');assert.equal(run('mode'),'chapter');assert.equal(run('chapter'),2);
- run('start();for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:1290,y:370};keys.add("ArrowUp");update(0);draw()');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
+test('Beide Brücken, Schlüsselauswahl und alle Kapitel funktionieren',()=>{
+ const run=game();
+ run('start();player={x:4250,y:400};update(0)');assert.equal(run('mode'),'playing');
+ run('for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:4250,y:400};update(0);draw()');assert.equal(run('mode'),'chapter');
+ run('start();player={x:380,y:350};update(0);player={x:2300,y:350};update(0)');assert.equal(run('fallTime'),0);
+ for(const lane of [0,1]){
+  run(`chapter=1;setup();mode='playing';player={x:380,y:350};update(0);player={x:690,y:BRIDGES[${lane}].center};keys.add('ArrowRight');update(.1);keys.clear()`);
+  assert.equal(run('selectedBridge'),lane);
+  run(`player={x:1498,y:BRIDGES[${lane}].center};keys.add('ArrowRight');update(.1);keys.clear()`);
+  assert.ok(run('bridgeDone'));
+ }
+ run('player={x:2300,y:350};update(0);draw();update(1.4)');assert.equal(run('mode'),'chapter');
+ run('start();player={x:5450,y:350};tryKey(0)');assert.ok(!run('ladderUnlocked'));
+ run('for(const g of gems){player={x:g.x,y:g.y};update(0);}for(const k of inventory){player={x:k.x,y:k.y};update(0);}player={x:5450,y:350};tryKey((correctKey+1)%4)');assert.ok(!run('ladderUnlocked'));
+ run('tryKey(correctKey);keys.add("ArrowUp");for(let i=0;i<100;i++)update(.02);draw()');assert.equal(run('mode'),'chapter');
+ run('start();for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:1600,y:370};keys.add("ArrowUp");update(0);draw()');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
  run('start();player={x:2490,y:420};update(0);draw()');assert.equal(run('mode'),'finished');
  run('start();pause();draw()');assert.equal(run('chapter'),0);assert.ok(!run('wings'));assert.equal(run('mode'),'paused');
 });
@@ -22,7 +31,7 @@ test('Alle Sammelobjekte sind über begehbare Wege erreichbar',()=>{
    if(level===rules.CHAPTERS[1]&&!rules.onBridge(n.x,n.y))continue;
    const k=key(n);if(!seen.has(k)){seen.add(k);queue.push(n);}
   }}
-  for(const gem of level.gems)assert.ok(queue.some(p=>rules.touching(p,gem,30)),`${level.name}: ${gem.x},${gem.y}`);
+  for(const gem of [...level.gems,...(level===rules.CHAPTERS[2]?rules.CELLAR_KEYS:[])])assert.ok(queue.some(p=>rules.touching(p,gem,30)),`${level.name}: ${gem.x},${gem.y}`);
   assert.ok(queue.some(p=>p.x>level.width-160),level.name+' Ausgang erreichbar');
  }
 });

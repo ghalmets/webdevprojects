@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=eine-figur-24';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=kurze-locken-25';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=eine-figur-24';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=kurze-locken-25';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -55,7 +55,7 @@ function assignCharacter(index,id){
 function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[index])return;party[index].ready=true;renderLobby();}
 function renderLobby(){
  const editable=['ready','finished'].includes(mode),p=party[0];
- $('party-slots').innerHTML=`<article class="player-slot"><h3 id="player-name-0">${html(playerName(p))}</h3><label>Dein Name<input data-player-name="0" name="player-name-0" type="text" maxlength="24" autocomplete="off" placeholder="${AVATARS[p.id].name}" value="${html(p.customName||'')}" ${editable?'':'disabled'}></label><fieldset class="character-options"><legend>Deine Figur</legend>${Object.entries(AVATARS).map(([id,a])=>`<button type="button" data-character="${id}" aria-pressed="${p.id===id}" ${editable?'':'disabled'}><img src="${a.portrait}?v=eine-figur-24" width="88" height="112" alt="${a.description}"><span>${a.name}</span></button>`).join('')}</fieldset></article>`;
+ $('party-slots').innerHTML=`<article class="player-slot"><h3 id="player-name-0">${html(playerName(p))}</h3><label>Dein Name<input data-player-name="0" name="player-name-0" type="text" maxlength="24" autocomplete="off" placeholder="${AVATARS[p.id].name}" value="${html(p.customName||'')}" ${editable?'':'disabled'}></label><fieldset class="character-options"><legend>Deine Figur</legend>${Object.entries(AVATARS).map(([id,a])=>`<button type="button" data-character="${id}" aria-pressed="${p.id===id}" ${editable?'':'disabled'}><img src="${a.portrait}?v=kurze-locken-25" width="88" height="112" alt="${a.description}"><span>${a.name}</span></button>`).join('')}</fieldset></article>`;
  document.querySelectorAll('[data-character]').forEach(button=>button.addEventListener('click',()=>assignCharacter(0,button.dataset.character)));
  document.querySelectorAll('[data-player-name]').forEach(input=>input.addEventListener('input',()=>setPlayerName(0,input.value)));
  refreshReadiness();
@@ -120,7 +120,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,()=>avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=eine-figur-24';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=kurze-locken-25';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}

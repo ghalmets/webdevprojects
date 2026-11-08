@@ -138,3 +138,8 @@ Nach dem Schlüssel und einer vollständig überquerten Hängebrücke fällt Lot
 ### Eingänge nach der Falltür und Turmwachen
 
 Aktueller Ablauf: erst die Brücke überqueren, dann durch die Falltür auf Heu fallen. Danach sieht Lotta aus ihrer Ich-Perspektive drei Eingänge im Keller-Vorraum. Nur einer führt weiter; die beiden anderen setzen alle Funde und Gespräche auf den Anfang des Gartens zurück. Vor dem Obervampir stehen zusätzlich zwei ausdrücklich benannte Turmwachen. Beide müssen in je zwei Antwortschritten angesprochen werden, bevor Lotta den Obervampir erreichen kann.
+
+
+### Lotta hat Angst
+
+Lotta zeigt bei Vampirbegegnungen Angst: Gedanken vor dem Gespräch, vorsichtige Antworten, eine Herzklopfen-Anzeige und leicht zitternde Hände in der Ich-Perspektive. Während des Gesprächs beruhigt sie sich schrittweise; nach dem Abschied atmet sie auf. Vampire antworten beruhigend. Die Falltür erschreckt sie ebenfalls. Die Angst verursacht keine zusätzlichen Strafen oder verlorene Gegenstände.

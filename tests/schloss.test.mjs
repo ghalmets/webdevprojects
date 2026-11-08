@@ -70,3 +70,9 @@ test('Zwei Turmwachen verlangen je ein vollständiges Gespräch vor dem Obervamp
  assert.ok(!run('wings'));run('reply(1);reply(0)');assert.ok(run('vampires.filter(v=>v.guard).every(v=>v.passed)'));
  run('player={x:1530,y:350};keys.add("ArrowUp");update(0)');assert.equal(run('activeTalk.name'),'Obervampir');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
 });
+test('Lottas Angst steigt bei Vampiren und sinkt während eines beruhigenden Gesprächs',()=>{
+ const run=game();run('start();player={x:385,y:210};keys.add("ArrowUp");update(.1);draw()');
+ assert.equal(run('fear'),1);assert.ok(run('$("talk-thought").textContent').includes('zittern'));assert.ok(run('$("reply-two").textContent').includes('Angst'));
+ run('reply(1)');assert.equal(run('fear'),.55);assert.ok(run('$("talk-thought").textContent').includes('sicherer'));
+ run('reply(0)');assert.equal(run('fear'),.2);assert.equal(run('mode'),'playing');assert.ok(run('$("dialog").textContent').includes('getraut'));
+});

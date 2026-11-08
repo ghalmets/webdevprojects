@@ -1,4 +1,4 @@
-import {makeTask,hintFor,solutionFor} from './regeln.mjs?v=buendeln-3';
+import {makeTask,hintFor,solutionFor} from './regeln.mjs?v=ergaenzen-4';
 const $=id=>document.getElementById(id);let task,solved=0,locked=false,previous='',activeAnswer='answer';
 function feedback(text,style=''){$('feedback').textContent=text;$('feedback').className=style;}
 function hud(){$('progress').textContent=solved===10?'Reise geschafft!':`Aufgabe ${solved+1} von 10`;$('suns').textContent=`☀ ${solved} / 10`;$('suns').setAttribute('aria-label',`${solved} von 10 Sonnen gesammelt`);$('progress-fill').style.width=`${solved*10}%`;}

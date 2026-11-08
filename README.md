@@ -169,3 +169,12 @@ Neues eigenständiges Spiel mit Kamera leicht oberhalb hinter Lana. Lange mittel
 Lana hat einen Keks geklaut und flieht zunächst durch Omis Gartenlabyrinth. Danach folgt der dunkle Friedhof und ein letzter Friedhofsabschnitt. Omi verfolgt sie in allen drei Etappen mit echter Wegsuche durch die begehbaren Zellen und bleibt langsamer als Lana. Vier Sekunden Vorsprung am Start. Wird Lana eingeholt, gibt es einen neuen Versuch im selben Labyrinth; bereits entdeckte Tore bleiben gespeichert. Drei verschiedene Tore pro Abschnitt. Auf dem Friedhof helfen Laternenlicht, Nordpfeil, Keks-Spuren und Karte. Während die Karte offen ist, pausiert die gesamte Verfolgung. Auf der Karte: Rot ist Lana, Lila ist Omi. Am Ende wartet Lana am sicheren Tor auf Omi und teilt die übrigen Kekse.
 
 Die Keks-Flucht hat eine eigene Adresse `/lana-keksflucht/`. Der frühere Link `/lana-labyrinth/` leitet dorthin weiter.
+
+
+## Mathewerkstatt 4 – Volksschule
+
+https://ghalmets.github.io/webdevprojects/mathe-4/
+
+Eigenständiges Mathematikprogramm für die 4. Klasse, Zahlenraum wählbar bis 10.000 / 100.000. Schriftliche Addition und Subtraktion im Stellenraster mit freiwilliger Hilfszeile. Mehrstellige Multiplikation (dreistellig mal zweistellig) mit zwei Teilprodukt-Zeilen und Gesamtergebnis. Division ohne Rest. Umfang von Rechtecken und Quadraten in cm mit beschrifteten schematischen Zeichnungen. 10er-/100er-Zahlenfolgen vorwärts und rückwärts. Zahlenschreibweise als Stellenwerte, Zahlwörter und Ziffern. Jede Runde hat zehn Aufgaben und genau eine Sachaufgabe am Schluss, auch bei gezielter Themenwahl. Tipps und ausgearbeitete Rechenwege sind jederzeit nutzbar, ohne Punktabzug. Keine Zeitbegrenzung. Optional ausklappbare Bildschirmtastatur.
+
+`mathe-4/regeln.mjs` erzeugt Aufgaben und Rechenwege; `app.mjs` steuert Stellenraster, Eingaben und Fortschritt.

@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=personen-21';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=lange-haare-22';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=personen-21';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=lange-haare-22';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -37,7 +37,7 @@ function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[in
 function renderLobby(){
  const editable=['ready','finished'].includes(mode);
  document.querySelectorAll('[data-count]').forEach(b=>{b.disabled=!editable;b.setAttribute('aria-pressed',String(Number(b.dataset.count)===party.length));});
- $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>${AVATARS[p.id].name}</h3><img src="${AVATARS[p.id].portrait}?v=personen-21" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
+ $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>${AVATARS[p.id].name}</h3><img src="${AVATARS[p.id].portrait}?v=lange-haare-22" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
  document.querySelectorAll('[data-player]').forEach(s=>s.addEventListener('change',()=>assignCharacter(Number(s.dataset.player),s.value)));
  document.querySelectorAll('[data-ready]').forEach(b=>b.addEventListener('click',()=>confirmPlayer(Number(b.dataset.ready))));
  const ready=party.filter(p=>p.ready).length;
@@ -106,7 +106,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=personen-21';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=lange-haare-22';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -248,7 +248,7 @@ function babyFromBehind(a,self){
  poly([[-16,-52],[16,-52],[24,-41],[17,-34],[16,-19],[7,-12],[-7,-12],[-16,-19],[-17,-34],[-24,-41]],a.top);
  line([[-8,-17],[0,-20],[8,-17]],'#79b4d8',2);ellipse(0,-17,1.5,1.5,'#fff8ef');
  ellipse(0,-70,24,25,a.skin);ellipse(-23,-66,4,6,a.skin);ellipse(23,-66,4,6,a.skin);
- line([[-8,-91],[-4,-96],[1,-96],[3,-92],[0,-89]],a.hair,3);
+ ctx.strokeStyle=a.hair;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-8,-91);ctx.bezierCurveTo(-18,-110,8,-111,7,-99);ctx.bezierCurveTo(6,-90,-6,-96,0,-101);ctx.stroke();
  // A small sideways glance makes the pacifier visible from the chase camera.
  ellipse(17,-72,1.8,2.4,'#47354c');ellipse(22,-59,8,5,'#afcfe6');ellipse(27,-59,4,3,'#ecb8c9');ctx.strokeStyle='#e7a5bc';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(29,-55,4,5,0,0,Math.PI*2);ctx.stroke();
  if(self)label('DU · '+a.name.toUpperCase(),0,30,'#e8f5e7');ctx.restore();
@@ -271,6 +271,7 @@ function lottaFromBehind(a=avatar(),self=true){
  else{poly([[-16,-67],[16,-67],[20,-35],[-20,-35]],a.top);if(a.outfit==='skirt')poly([[-16,-36],[16,-36],[25,-16],[-25,-16]],a.bottom);else{ctx.fillStyle=a.bottom;ctx.fillRect(-17,-36,34,9);}}
  if(a.unicorn)unicornPatch(0,-44,.75);
  if(a.hairStyle==='curly'){
+  if(a.hairLength==='long'){poly([[-20,-90],[20,-90],[25,-36],[12,-30],[0,-35],[-13,-30],[-25,-36]],a.hair);for(const side of [-1,1])for(let j=0;j<6;j++){ellipse(side*(21+(j%2)*2),-78+j*8,7,8,j%3?a.hair:a.hairTop);line([[side*17,-78+j*8],[side*21,-81+j*8],[side*25,-77+j*8]],a.highlight,1.3);}}
   ellipse(0,-88,24,24,a.hair);
   for(let i=0;i<12;i++){const angle=i*Math.PI/6;ellipse(Math.cos(angle)*20,-88+Math.sin(angle)*20,8,8,i%3?a.hair:a.hairTop);}
   for(const [x,y] of [[-10,-96],[7,-94],[-4,-82],[13,-80]])line([[x-3,y],[x,y-3],[x+3,y]],a.highlight,1.5);

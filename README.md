@@ -207,3 +207,5 @@ Alle spielen gleichzeitig: Person 1 mit Pfeiltasten, Person 2 mit WASD, Person 3
 ### Fünf nummerierte Spielfiguren
 
 Die Figuren heißen nun Person 1, Person 2, Person 3, Person 4 und Person 5. Person 5 ist ein Baby mit hellblauem Body und Schnuller. Der lokale Mehrspielermodus unterstützt bis zu fünf echte Mitspielende, jede mit eigener Ansicht und Steuerung. Bei fünf Personen werden fünf einzelne Bereitschaftsbestätigungen benötigt. Das fünfte Tastenfeld nutzt 8 (vorwärts/steigen), 4 (links), 5 (zurück/sinken) und 6 (rechts); auch ein eigenes Touch-Pfeilfeld ist vorhanden.
+
+Aktuelles Aussehen: Person 1 bis Person 4 tragen lange Haare in ihren bisherigen Haarfarben; Person 2 hat weiterhin wuschelige schwarze Haare, nun lang. Das Baby (Person 5) trägt eine deutlich sichtbare Locke am Kopf.

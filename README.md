@@ -128,3 +128,8 @@ Zahlenraum bis 100: reine Zehner addieren (30 + 40), reiner Zehner + gemischte z
 ### Lottas Blick und Gespräche
 
 Das Vampirspiel wird nun aus Lottas eigener Perspektive gespielt: ↑ / W vorwärts, ↓ / S zurück, ← / → oder A / D seitwärts. Die Kamera schaut immer zum Kapitelziel. Eine Fundanzeige hilft bei Gegenständen neben oder hinter Lotta. Mondbrücke liegt links, Sternbrücke rechts. Vampire bewachen den gesamten Wegabschnitt; erst ein Gespräch mit zwei Antwortschritten gibt den Weg frei. Antworten per Bildschirmknopf oder 1 / 2. Während eines Gesprächs steht die Spielwelt still. Bereits angesprochene Vampire bleiben freundlich und halten Lotta nicht erneut auf. Auch die Flügel bekommt sie in einem Gespräch mit dem Obervampir.
+
+
+### Drei Kellertüren
+
+Nach dem Schlüssel und einer vollständig überquerten Hängebrücke erreicht Lotta drei Türen. Auswahl per Knopf oder Taste 1 / 2 / 3. Nur eine zufällig gewählte Tür führt zur Falltür und in den Keller. Die beiden anderen führen nach draußen: Alle Funde und Gespräche werden zurückgesetzt; weiter geht es wieder am Anfang des Gartens. Die richtige Tür bleibt bei diesen Fehlversuchen an derselben Stelle, damit sich Kinder falsche Türen merken können. Eine neue Partie nach dem Ende lost sie neu aus.

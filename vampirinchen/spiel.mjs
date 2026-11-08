@@ -1,10 +1,10 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=lotta-4';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS} from './regeln.mjs?v=tueren-5';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
-const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0;
+const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0;
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
 function say(text){$('dialog').textContent=text;chatTimer=5;}
-function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:i===0?'Vampirinchen':'Vampir '+(i+1)}));score=0;time=0;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;activeTalk=null;talkStep=0;$('conversation').hidden=true;camera=0;keys.clear();$('level').textContent=`${chapter+1} / 5 · ${level.name}`;hud();say(level.target);}
+function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:i===0?'Vampirinchen':'Vampir '+(i+1)}));score=0;time=0;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();$('level').textContent=`${chapter+1} / 5 · ${level.name}`;hud();say(level.target);}
 function hud(){
  $('score').textContent=chapter===4?'Flügel bereit':chapter===2?`${score}/${gems.length} Steine · ${inventory.filter(k=>k.collected).length}/4 Schlüssel`: `${score} / ${gems.length} ${chapter===1?'Schlüssel':'Mondsteine'}`;
  $('key-choice').hidden=!(chapter===2&&player.x>current().width-350);
@@ -34,8 +34,19 @@ function reply(choice){
  if(boss){wings=true;next('Ein Wunsch wird wahr!','Der Obervampir schenkt Lotta Flügel. Jetzt siehst du den Nachthimmel durch ihre Augen. Fliege nach vorne und zum leuchtenden Haus!');}
  else{say('Der Vampir macht Platz. Jetzt kannst du weitergehen!');canvas.focus({preventScroll:true});}
 }
+function chooseDoor(index){
+ if(mode!=='doors'||!Number.isInteger(index)||index<0||index>2)return;
+ $('door-choice').hidden=true;keys.clear();
+ if(index===correctDoor){mode='playing';fallTime=1.3;say('Die richtige Tür! Dahinter öffnet sich die Falltür zum Schlosskeller.');}
+ else{chapter=0;wings=false;setup();mode='outside';$('pause').disabled=true;overlay('DIESE TÜR FÜHRT NACH DRAUSSEN','Wieder vor dem Schloss!','Lotta ist durch eine Außentür gegangen. Alle Mondsteine, Schlüssel und Gespräche werden zurückgesetzt. Das Abenteuer beginnt wieder ganz vorne im Garten. Merke dir die falsche Tür!','Von vorne im Garten starten →');$('start').focus({preventScroll:true});}
+}
+function showDoors(){
+ mode='doors';keys.clear();$('door-choice').hidden=false;
+ $('door-one').focus({preventScroll:true});
+ say('Drei Türen: Nur eine führt in den Keller. Die anderen führen nach draußen und starten das ganze Abenteuer neu.');
+}
 function overlay(tag,title,text,button){$('tag').textContent=tag;$('title').textContent=title;$('description').textContent=text;$('start').textContent=button;$('overlay').hidden=false;}
-function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent='Pause';return;}if(mode==='chapter')chapter++;if(mode==='finished'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent='Pause';}
+function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent='Pause';return;}if(mode==='chapter')chapter++;if(mode==='ready'||mode==='finished')correctDoor=Math.floor(Math.random()*3);if(mode==='finished'||mode==='outside'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent='Pause';}
 function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent='Weiter';overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
 function next(title,text){keys.clear();mode='chapter';$('pause').disabled=true;overlay('DAS ABENTEUER GEHT WEITER',title,text,'Weiter →');$('start').focus({preventScroll:true});}
 function update(dt){if(mode!=='playing')return;time+=dt;cooldown=Math.max(0,cooldown-dt);chatTimer=Math.max(0,chatTimer-dt);
@@ -63,7 +74,7 @@ function update(dt){if(mode!=='playing')return;time+=dt;cooldown=Math.max(0,cool
  for(const gem of gems)if(!gem.collected&&touching(player,gem,32)){gem.collected=true;score++;hud();say(score===gems.length?current().target+' Alles eingesammelt!': 'Lotta: „Gefunden! Weiter geht’s.“');}
  if(chapter===2)for(const key of inventory)if(!key.collected&&touching(player,key,30)){key.collected=true;hud();say(`${key.name} gefunden! Erst an der Leiter erfährst du, ob er passt.`);}
  if(chapter===0&&player.x>current().width-180){if(score===gems.length)next('Willkommen im Schloss!','Die Mondsteine öffnen das Schlosstor. Drinnen warten zwei Hängebrücken. Wähle eine und überquere sie, um die Falltür zu erreichen.');else if(chatTimer===0)say('Am Tor fehlen noch Mondsteine. Suche im großen Garten!');}
- if(chapter===1&&player.x>2250&&player.x<2390&&score===1&&bridgeDone){fallTime=1.3;keys.clear();say('KLICK … die Falltür öffnet sich! Lotta fällt auf weiches Heu.');}
+ if(chapter===1&&player.x>2160&&score===1&&bridgeDone){showDoors();return;}
  if(chapter===1&&player.x>2150&&(!bridgeDone||score===0)&&chatTimer===0)say('Erst den Schlüssel holen und eine der beiden Hängebrücken vollständig überqueren.');
  if(chapter===2&&player.x>current().width-200&&Math.abs(player.y-350)<80&&ladderUnlocked&&score===gems.length&&inventory.every(k=>k.collected)&&dx>0){climb+=dt;if(climb>=1.5)next('Wieder oben!','Lotta klettert Sprosse für Sprosse nach oben. Die Treppe führt direkt in den Turm zum Obervampir.');}else climb=0;
  if(chapter===2&&player.x>current().width-350&&chatTimer===0)say(ladderUnlocked?(score===gems.length&&inventory.every(k=>k.collected)?'Halte ↑ an der Leiter gedrückt.':'Es fehlen noch Mondsteine oder Schlüssel im Keller.'):'Probiere unten einen deiner gefundenen Schlüssel am Schloss aus.');
@@ -102,12 +113,13 @@ function draw(){
  for(let x=Math.floor(player.x/70)*70;x<player.x+1300;x+=70){for(const y of [200,470]){const p=project(x,y);if(p)line([[p.x,p.y],[p.x,p.y-38*p.scale]],'#b49d80',Math.max(1,p.scale*3));}}
  // Brücken laufen links und rechts durch die Tiefe ins Schloss.
  if(chapter===1){floorPatch(BRIDGE_SPAN.left,BRIDGE_SPAN.right,190,480,'#1b1729');for(const bridge of BRIDGES){floorPatch(BRIDGE_SPAN.left,BRIDGE_SPAN.right,bridge.top,bridge.bottom,'#ad8b64');for(let x=BRIDGE_SPAN.left;x<BRIDGE_SPAN.right;x+=35){const a=project(x,bridge.top),b=project(x,bridge.bottom);if(a&&b)line([[a.x,a.y],[b.x,b.y]],'#72563f',Math.max(1,a.scale*2));}const p=project(BRIDGE_SPAN.left+60,bridge.center);if(p)label(bridge.name,p.x,p.y-45*p.scale);}
- floorPatch(2250,2390,275,425,fallTime>0?'#100e19':'#5f493d');}
+ if(fallTime>0)floorPatch(2250,2390,275,425,'#100e19');}
  const objects=[];
  for(const block of level.blocks)objects.push({x:block.x,y:block.y+block.h/2,type:'block',block});
  for(const gem of gems)if(!gem.collected)objects.push({...gem,type:'gem'});
  if(chapter===2)for(const key of inventory)if(!key.collected)objects.push({...key,type:'key'});
  for(const v of vampires)objects.push({...v,y:v.passed?205:v.y,type:'vampire'});
+ if(chapter===1)for(let i=0;i<3;i++)objects.push({x:2320,y:235+i*100,type:'choiceDoor',number:i+1});
  if(chapter===0)objects.push({x:level.width-100,y:350,type:'door'});
  if(chapter===2)objects.push({x:level.width-130,y:350,type:'ladder'});
  if(chapter===3)objects.push({x:level.width-210,y:350,type:'vampire',boss:true,name:'Obervampir'});
@@ -119,6 +131,7 @@ function draw(){
  if(o.type==='key'){ellipse(0,-30,10,10,'#edc982');line([[0,-20],[0,2],[8,2]],'#edc982',5);label(o.name,0,-55);}
  if(o.type==='block'){ctx.fillStyle=chapter===0?'#354d3d':'#735e4d';ctx.fillRect(-o.block.h,-45,o.block.h*2,45);}
  if(o.type==='ladder'){line([[-25,0],[-25,-160]],'#c6a375',7);line([[25,0],[25,-160]],'#c6a375',7);for(let y=0;y>-160;y-=20)line([[-25,y],[25,y]],'#e5c69b',5);label('LEITER',0,-180);}
+ if(o.type==='choiceDoor'){ctx.fillStyle=['#795c89','#5b7978','#9b7856'][o.number-1];ctx.fillRect(-32,-125,64,125);line([[-32,0],[-32,-125],[32,-125],[32,0]],'#d5b68b',4);ellipse(20,-60,4,4,'#e9cf8f');label('TÜR '+o.number,0,-145);}
  if(o.type==='door'||o.type==='house'){ctx.fillStyle='#a68a83';ctx.fillRect(-65,-160,130,160);poly([[-80,-160],[0,-225],[80,-160]],'#574361');ctx.fillStyle='#f1cf87';ctx.fillRect(-20,-65,40,65);label(o.type==='house'?'ZU HAUSE':'SCHLOSS',0,-235);}
  ctx.restore();}
  // Nur Lottas Hände, im Flug die eigenen Flügel: keine Spielfigur von außen.
@@ -135,9 +148,10 @@ function draw(){
 }
 let last=0;function frame(now){const dt=last?Math.min((now-last)/1000,.04):0;last=now;update(dt);draw();requestAnimationFrame(frame);}requestAnimationFrame(frame);
 document.querySelectorAll('[data-lock-key]').forEach((button,i)=>button.addEventListener('click',()=>tryKey(i)));
+document.querySelectorAll('[data-door]').forEach((button,i)=>button.addEventListener('click',()=>chooseDoor(i)));
 $('reply-one').addEventListener('click',()=>reply(0));$('reply-two').addEventListener('click',()=>reply(1));
 $('start').addEventListener('click',start);$('pause').addEventListener('click',pause);
-window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(key)&&mode==='playing'){e.preventDefault();keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
+window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='doors'&&['1','2','3'].includes(key)&&!e.repeat){e.preventDefault();chooseDoor(Number(key)-1);return;}if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(key)&&mode==='playing'){e.preventDefault();keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
 window.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));window.addEventListener('blur',()=>{keys.clear();if(mode==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')pause();});
 document.querySelectorAll('[data-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')keys.add(button.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>keys.delete(button.dataset.key));});
 setup();

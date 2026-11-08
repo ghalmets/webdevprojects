@@ -211,3 +211,5 @@ Die Figuren heißen nun Person 1, Person 2, Person 3, Person 4 und Person 5. Per
 Aktuelles Aussehen: Person 1 bis Person 4 tragen lange Haare in ihren bisherigen Haarfarben; Person 2 hat weiterhin wuschelige schwarze Haare, nun lang. Das Baby (Person 5) trägt eine deutlich sichtbare Locke am Kopf.
 
 Eigene Namen: Jede mitspielende Person kann vor dem Start einen Namen (bis 24 Zeichen) wählen. Er erscheint an der Figur, in der eigenen Ansicht, bei der Steuerung, in Gesprächen und beim Ende. Namen bleiben bei Aussehenswechsel, Kapitelwechsel und Wiederholungen erhalten. Leere Felder verwenden weiterhin die nummerierten Figurennamen. Nach einer Namensänderung bestätigt man im Mehrspielermodus erneut die Bereitschaft.
+
+Aktueller Spielmodus: Es wird immer nur eine Figur gesteuert. Die vier Figuren und das Baby sind fünf alternative Spielfiguren. Vor dem Abenteuer wählt man genau eine davon und den eigenen Namen. Die Auswahl der Anzahl gleichzeitig Mitspielender und zusätzliche Steuerfelder wurden aus der Oberfläche entfernt.

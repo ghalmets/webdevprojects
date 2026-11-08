@@ -1,7 +1,7 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=eigene-namen-23';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=eine-figur-24';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=eigene-namen-23';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=eine-figur-24';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
@@ -54,17 +54,13 @@ function assignCharacter(index,id){
 }
 function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[index])return;party[index].ready=true;renderLobby();}
 function renderLobby(){
- const editable=['ready','finished'].includes(mode);
- document.querySelectorAll('[data-count]').forEach(b=>{b.disabled=!editable;b.setAttribute('aria-pressed',String(Number(b.dataset.count)===party.length));});
- $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3 id="player-name-${i}">${html(playerName(p))}</h3><img src="${AVATARS[p.id].portrait}?v=eigene-namen-23" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Dein Name<input data-player-name="${i}" name="player-name-${i}" type="text" maxlength="24" autocomplete="off" placeholder="${AVATARS[p.id].name}" value="${html(p.customName||'')}" ${editable?'':'disabled'}></label><label>Dein Aussehen<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
- document.querySelectorAll('[data-player]').forEach(s=>s.addEventListener('change',()=>assignCharacter(Number(s.dataset.player),s.value)));
- document.querySelectorAll('[data-player-name]').forEach(input=>input.addEventListener('input',()=>setPlayerName(Number(input.dataset.playerName),input.value)));
- document.querySelectorAll('[data-ready]').forEach(b=>b.addEventListener('click',()=>confirmPlayer(Number(b.dataset.ready))));
+ const editable=['ready','finished'].includes(mode),p=party[0];
+ $('party-slots').innerHTML=`<article class="player-slot"><h3 id="player-name-0">${html(playerName(p))}</h3><label>Dein Name<input data-player-name="0" name="player-name-0" type="text" maxlength="24" autocomplete="off" placeholder="${AVATARS[p.id].name}" value="${html(p.customName||'')}" ${editable?'':'disabled'}></label><fieldset class="character-options"><legend>Deine Figur</legend>${Object.entries(AVATARS).map(([id,a])=>`<button type="button" data-character="${id}" aria-pressed="${p.id===id}" ${editable?'':'disabled'}><img src="${a.portrait}?v=eine-figur-24" width="88" height="112" alt="${a.description}"><span>${a.name}</span></button>`).join('')}</fieldset></article>`;
+ document.querySelectorAll('[data-character]').forEach(button=>button.addEventListener('click',()=>assignCharacter(0,button.dataset.character)));
+ document.querySelectorAll('[data-player-name]').forEach(input=>input.addEventListener('input',()=>setPlayerName(0,input.value)));
  refreshReadiness();
- document.title=party.length>1?'Vampirinchen & Freundinnen':avatar().name+' & Vampirinchen';$('hero-name').textContent=party.length>1?'Freundinnen':avatar().name;$('hero-portrait').hidden=party.length>1;
- $('solo-controls').hidden=party.length!==1;$('party-controls').hidden=party.length===1;$('team-hud').hidden=party.length===1;
- $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3 id="control-name-${i}">${html(playerName(p))}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${html(playerName(p))}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
- document.querySelectorAll('[data-party-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')heldKeys.add(button.dataset.partyKey);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>heldKeys.delete(button.dataset.partyKey));});
+ document.title=avatar().name+' & Vampirinchen';$('hero-name').textContent=avatar().name;$('hero-portrait').hidden=false;
+ $('solo-controls').hidden=false;$('party-controls').hidden=true;$('team-hud').hidden=true;
 }
 function teamReached(target){
  if(party.length===1)return true;
@@ -124,7 +120,7 @@ function hud(){
 function chooseLotta(value){
  if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,()=>avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=eigene-namen-23';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=eine-figur-24';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -357,5 +353,4 @@ $('start').addEventListener('click',start);$('pause').addEventListener('click',p
 window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='doors'&&['1','2','3'].includes(key)&&!e.repeat){e.preventDefault();chooseDoor(Number(key)-1);return;}if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(CONTROLS.some(c=>c.keys.includes(key))&&mode==='playing'){e.preventDefault();heldKeys.add(key);if(party.length===1)keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
 window.addEventListener('keyup',e=>{const key=e.key.length===1?e.key.toLowerCase():e.key;heldKeys.delete(key);keys.delete(key);});window.addEventListener('blur',()=>{heldKeys.clear();keys.clear();if(mode==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')pause();});
 document.querySelectorAll('[data-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')keys.add(button.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>keys.delete(button.dataset.key));});
-document.querySelectorAll('[data-count]').forEach(button=>button.addEventListener('click',()=>setPartyCount(Number(button.dataset.count))));
 setup();chooseLotta('lea');renderLobby();

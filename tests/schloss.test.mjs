@@ -15,8 +15,8 @@ test('Beide Brücken, Schlüsselauswahl und alle Kapitel funktionieren',()=>{
   run(`player={x:1498,y:BRIDGES[${lane}].center};keys.add('ArrowUp');update(.1);keys.clear()`);
   assert.ok(run('bridgeDone'));
  }
- run('player={x:2300,y:350};update(0);draw()');assert.equal(run('mode'),'doors');run('chooseDoor(correctDoor);update(1.4)');assert.equal(run('mode'),'chapter');
- run('start();vampires.forEach(v=>v.passed=true);player={x:5450,y:350};tryKey(0)');assert.ok(!run('ladderUnlocked'));
+ run('player={x:2300,y:350};update(0);draw()');assert.equal(run('mode'),'playing');assert.ok(run('fallTime')>0);run('update(1.4);draw()');assert.equal(run('chapter'),2);assert.equal(run('mode'),'doors');run('chooseDoor(correctDoor)');assert.equal(run('mode'),'playing');
+ run('vampires.forEach(v=>v.passed=true);player={x:5450,y:350};tryKey(0)');assert.ok(!run('ladderUnlocked'));
  run('for(const g of gems){player={x:g.x,y:g.y};update(0);}for(const k of inventory){player={x:k.x,y:k.y};update(0);}player={x:5450,y:350};tryKey((correctKey+1)%4)');assert.ok(!run('ladderUnlocked'));
  run('tryKey(correctKey);keys.add("ArrowUp");for(let i=0;i<100;i++)update(.02);draw()');assert.equal(run('mode'),'chapter');
  run('start();vampires.forEach(v=>v.passed=true);for(const g of gems){player={x:g.x,y:g.y};update(0);}player={x:1600,y:370};keys.add("ArrowUp");update(0);draw()');assert.equal(run('mode'),'talk');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
@@ -54,10 +54,19 @@ test('Ich-Perspektive: vorwärts, zurück und seitwärts passen zur Blickrichtun
 
 test('Falsche Kellertüren setzen alle Funde und Gespräche auf den Gartenanfang zurück',()=>{
  for(const correct of [0,1,2])for(const choice of [0,1,2]){
-  const run=game();run(`start();correctDoor=${correct};chapter=1;setup();mode='playing';score=1;bridgeDone=true;vampires.forEach(v=>v.passed=true);player={x:2300,y:350};update(0);draw()`);
+  const run=game();run(`start();correctDoor=${correct};chapter=1;setup();mode='playing';score=1;bridgeDone=true;vampires.forEach(v=>v.passed=true);player={x:2300,y:350};update(0);update(1.4);draw()`);
   assert.equal(run('mode'),'doors');const x=run('player.x');run('keys.add("ArrowUp");update(1)');assert.equal(run('player.x'),x);
   run(`chooseDoor(${choice})`);
-  if(choice===correct){assert.equal(run('mode'),'playing');assert.ok(run('fallTime')>0);run('update(1.4);start()');assert.equal(run('chapter'),2);}
+  if(choice===correct){assert.equal(run('mode'),'playing');assert.ok(run('entranceChosen'));assert.equal(run('fallTime'),0);assert.equal(run('chapter'),2);run('update(0)');assert.equal(run('mode'),'playing');}
   else{assert.equal(run('mode'),'outside');assert.equal(run('chapter'),0);assert.equal(run('score'),0);assert.ok(run('gems.every(g=>!g.collected)'));assert.ok(run('vampires.every(v=>!v.passed)'));assert.ok(run('inventory.every(k=>!k.collected)'));assert.ok(!run('ladderUnlocked'));assert.ok(!run('wings'));run('start()');assert.equal(run('mode'),'playing');assert.equal(run('chapter'),0);assert.equal(run('player.x'),rules.CHAPTERS[0].start.x);assert.equal(run('correctDoor'),correct);}
  }
+});
+
+test('Zwei Turmwachen verlangen je ein vollständiges Gespräch vor dem Obervampir',()=>{
+ const run=game();run('start();chapter=3;setup();mode="playing";vampires.filter(v=>!v.guard).forEach(v=>v.passed=true);score=gems.length;player={x:1360,y:350};keys.add("ArrowUp");update(.1);draw()');
+ assert.equal(run('mode'),'talk');assert.equal(run('activeTalk.name'),'Linke Turmwache');
+ run('reply(0)');assert.ok(!run('vampires.find(v=>v.guard).passed'));run('reply(0)');
+ run('keys.add("ArrowUp");update(.3)');assert.equal(run('mode'),'talk');assert.equal(run('activeTalk.name'),'Rechte Turmwache');
+ assert.ok(!run('wings'));run('reply(1);reply(0)');assert.ok(run('vampires.filter(v=>v.guard).every(v=>v.passed)'));
+ run('player={x:1530,y:350};keys.add("ArrowUp");update(0)');assert.equal(run('activeTalk.name'),'Obervampir');run('reply(0);reply(0)');assert.ok(run('wings'));assert.equal(run('mode'),'chapter');
 });

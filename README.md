@@ -132,4 +132,9 @@ Das Vampirspiel wird nun aus Lottas eigener Perspektive gespielt: ↑ / W vorwä
 
 ### Drei Kellertüren
 
-Nach dem Schlüssel und einer vollständig überquerten Hängebrücke erreicht Lotta drei Türen. Auswahl per Knopf oder Taste 1 / 2 / 3. Nur eine zufällig gewählte Tür führt zur Falltür und in den Keller. Die beiden anderen führen nach draußen: Alle Funde und Gespräche werden zurückgesetzt; weiter geht es wieder am Anfang des Gartens. Die richtige Tür bleibt bei diesen Fehlversuchen an derselben Stelle, damit sich Kinder falsche Türen merken können. Eine neue Partie nach dem Ende lost sie neu aus.
+Nach dem Schlüssel und einer vollständig überquerten Hängebrücke fällt Lotta durch die Falltür. Erst unten im Keller-Vorraum stehen drei Eingänge zur Auswahl. Auswahl per Knopf oder Taste 1 / 2 / 3. Nur ein zufällig gewählter Eingang führt weiter in den langen Keller. Die beiden anderen führen nach draußen: Alle Funde und Gespräche werden zurückgesetzt; weiter geht es wieder am Anfang des Gartens. Die richtige Tür bleibt bei diesen Fehlversuchen an derselben Stelle, damit sich Kinder falsche Türen merken können. Eine neue Partie nach dem Ende lost sie neu aus.
+
+
+### Eingänge nach der Falltür und Turmwachen
+
+Aktueller Ablauf: erst die Brücke überqueren, dann durch die Falltür auf Heu fallen. Danach sieht Lotta aus ihrer Ich-Perspektive drei Eingänge im Keller-Vorraum. Nur einer führt weiter; die beiden anderen setzen alle Funde und Gespräche auf den Anfang des Gartens zurück. Vor dem Obervampir stehen zusätzlich zwei ausdrücklich benannte Turmwachen. Beide müssen in je zwei Antwortschritten angesprochen werden, bevor Lotta den Obervampir erreichen kann.

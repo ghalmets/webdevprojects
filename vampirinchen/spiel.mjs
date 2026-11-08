@@ -1,14 +1,99 @@
-import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=freundinnen-18';
+import {CHAPTERS,movePlayer,touching,onBridge,BRIDGES,BRIDGE_SPAN,bridgeAt,CELLAR_KEYS,closeEncounter,chaseProject,FLIGHT,flightCollision,vampireAltitude,AVATARS} from './regeln.mjs?v=miteinander-20';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
 const reducedMotion=typeof window.matchMedia==='function'&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=freundinnen-18';
+const vampirinchenPortrait=typeof Image==='function'?new Image():null;if(vampirinchenPortrait)vampirinchenPortrait.src='vampirinchen.svg?v=miteinander-20';
 const keys=new Set();let mode='ready',chapter=0,score=0,time=0,cooldown=0,chatTimer=0,camera=0,climb=0,fallTime=0,wings=false,bridgeDone=false,selectedBridge=-1,inventory=[],correctKey=-1,ladderUnlocked=false,activeTalk=null,talkStep=0,correctDoor=0,entranceChosen=true,fear=.35,visualTime=0,lives=3,hurtTimer=0,flightHeight=120,landing=false,selectedLotta='lea';
 let player={x:80,y:430},gems=[],vampires=[];
 const current=()=>CHAPTERS[chapter];
+// Local cooperative play: one human-controlled character and camera per participant.
+const CONTROLS=[
+ {label:'Pfeiltasten ↑ ← ↓ →',keys:['ArrowUp','ArrowLeft','ArrowDown','ArrowRight']},
+ {label:'W A S D',keys:['w','a','s','d']},
+ {label:'I J K L',keys:['i','j','k','l']},
+ {label:'T F G H',keys:['t','f','g','h']}
+];
+const heldKeys=new Set();
+let party=[{id:'lea',ready:true,state:null,waiting:null}],actorIndex=0,partyGeneration=0;
+function captureActor(){return {player:{...player},lives,hurtTimer,flightHeight,landing,climb,bridgeDone,selectedBridge,fear};}
+function loadActor(index){actorIndex=index;selectedLotta=party[index].id;const s=party[index].state;if(!s)return;player={...s.player};({lives,hurtTimer,flightHeight,landing,climb,bridgeDone,selectedBridge,fear}=s);}
+function saveActor(){party[actorIndex].state=captureActor();}
+function resetParty(){
+ partyGeneration++;heldKeys.clear();const initial=captureActor();
+ party.forEach((p,i)=>{p.waiting=null;p.state={...initial,player:{...initial.player,y:Math.max(205,Math.min(465,initial.player.y+(i-(party.length-1)/2)*35))}};});
+ actorIndex=0;if(party.length>1)loadActor(0);
+}
+function setPartyCount(count){
+ if(!['ready','finished'].includes(mode)||!Number.isInteger(count)||count<1||count>4)return;
+ const ids=Object.keys(AVATARS);party=ids.slice(0,count).map(id=>({id,ready:count===1,state:null,waiting:null}));actorIndex=0;mode='ready';chapter=0;wings=false;setup();chooseLotta(party[0].id);overlay('GEMEINSAM DURCH DIE NACHT',count===1?'Dein Abenteuer wartet!':`${count} Personen – ${count} eigene Figuren`,count===1?'Wähle deine Freundin und starte das Schlossabenteuer.':'Jede Person wählt im Auswahlfeld ihre Figur und drückt Bereit. Ihr steuert gleichzeitig am selben Gerät, sammelt gemeinsam und wartet am Kapitelziel aufeinander. Jede Ansicht gehört einer Person.','Ab in den Garten →');renderLobby();
+}
+function assignCharacter(index,id){
+ if(!['ready','finished'].includes(mode)||!party[index]||!Object.hasOwn(AVATARS,id))return;
+ const other=party.findIndex(p=>p.id===id),old=party[index].id;
+ if(other>=0&&other!==index){party[other].id=old;party[other].ready=false;}
+ party[index].id=id;party[index].ready=party.length===1;loadActor(index);chooseLotta(id);renderLobby();
+}
+function confirmPlayer(index){if(!['ready','finished'].includes(mode)||!party[index])return;party[index].ready=true;renderLobby();}
+function renderLobby(){
+ const editable=['ready','finished'].includes(mode);
+ document.querySelectorAll('[data-count]').forEach(b=>{b.disabled=!editable;b.setAttribute('aria-pressed',String(Number(b.dataset.count)===party.length));});
+ $('party-slots').innerHTML=party.map((p,i)=>`<article class="player-slot"><h3>Person ${i+1}</h3><img src="${AVATARS[p.id].portrait}?v=miteinander-20" width="88" height="112" alt="${AVATARS[p.id].description}"><label>Deine Figur<select data-player="${i}" ${editable?'':'disabled'}>${Object.entries(AVATARS).map(([id,a])=>`<option value="${id}" ${p.id===id?'selected':''}>${a.name}</option>`).join('')}</select></label><p>${CONTROLS[i].label}<br>oder eigenes Pfeilfeld</p><button data-ready="${i}" ${!editable||p.ready?'disabled':''}>${p.ready?'✓ Bereit':'Ich spiele mit – bereit!'}</button></article>`).join('');
+ document.querySelectorAll('[data-player]').forEach(s=>s.addEventListener('change',()=>assignCharacter(Number(s.dataset.player),s.value)));
+ document.querySelectorAll('[data-ready]').forEach(b=>b.addEventListener('click',()=>confirmPlayer(Number(b.dataset.ready))));
+ const ready=party.filter(p=>p.ready).length;
+ $('party-status').textContent=party.length===1?'Du spielst allein mit deiner gewählten Freundin.':`${ready} von ${party.length} Personen bereit. ${ready===party.length?'Ihr könnt gemeinsam starten!':'Jede Person wählt ihre Figur und drückt selbst auf Bereit.'}`;
+ if(editable)$('start').disabled=ready!==party.length;
+ document.title=party.length>1?'Vampirinchen & Freundinnen':avatar().name+' & Vampirinchen';$('hero-name').textContent=party.length>1?'Freundinnen':avatar().name;$('hero-portrait').hidden=party.length>1;
+ $('solo-controls').hidden=party.length!==1;$('party-controls').hidden=party.length===1;$('team-hud').hidden=party.length===1;
+ $('party-controls').innerHTML=party.length===1?'':party.map((p,i)=>`<section><h3>Person ${i+1} · ${AVATARS[p.id].name}</h3><p>${CONTROLS[i].label}</p><div class="pad">${['↑','←','↓','→'].map((arrow,k)=>`<button class="${['up','left','down','right'][k]}" data-party-key="${CONTROLS[i].keys[k]}" aria-label="${AVATARS[p.id].name}: ${['vorwärts / steigen','links','zurück / sinken','rechts'][k]}">${arrow}</button>`).join('')}</div></section>`).join('');
+ document.querySelectorAll('[data-party-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')heldKeys.add(button.dataset.partyKey);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>heldKeys.delete(button.dataset.partyKey));});
+}
+function teamReached(target){
+ if(party.length===1)return true;
+ party[actorIndex].waiting=target;
+ if(party.every(p=>p.waiting===target))return true;
+ say(`${avatar().name} wartet am Ziel. Die anderen kommen mit ihrer eigenen Steuerung nach.`);return false;
+}
+function teamHud(){
+ if(party.length===1)return;
+ const text=party.map((p,i)=>`${i+1} · ${AVATARS[p.id].name}: ${'♥'.repeat(p.state?.lives??3)}${p.waiting?' · wartet am Ziel':''}`).join('   |   ');if($('team-hud').textContent!==text)$('team-hud').textContent=text;
+ if(chapter===2)$('key-choice').hidden=!party.some(p=>p.state.player.x>current().width-350);
+}
+function update(dt){
+ if(party.length===1){updateSolo(dt);return;}
+ if(mode!=='playing')return;
+ if(fallTime>0){const generation=partyGeneration;loadActor(0);updateSolo(dt);if(generation===partyGeneration)saveActor();teamHud();return;}
+ const generation=partyGeneration,oldTime=time,oldCooldown=cooldown,oldChatTimer=chatTimer;let focus=actorIndex;
+ for(let i=0;i<party.length;i++){
+  if(party[i].waiting)continue;
+  loadActor(i);keys.clear();const controls=CONTROLS[i].keys;
+  controls.forEach((key,k)=>{if(heldKeys.has(key))keys.add(CONTROLS[0].keys[k]);});
+  time=oldTime;cooldown=oldCooldown;chatTimer=oldChatTimer;updateSolo(dt);
+  if(generation!==partyGeneration){focus=0;break;}
+  saveActor();focus=i;
+  if(mode!=='playing')break;
+ }
+ keys.clear();loadActor(focus);hud();teamHud();
+}
+function draw(){
+ if(party.length===1){if(canvas.height!==520)canvas.height=520;drawSolo();return;}
+ const focus=actorIndex,generation=partyGeneration;
+ // Stack views on phones; use a two-column split screen on wider displays.
+ const columns=typeof window.matchMedia==='function'&&window.matchMedia('(max-width: 650px)').matches?1:2;
+ const scale=1/columns,rows=Math.ceil(party.length/columns),height=520*rows/columns;
+ if(canvas.height!==height)canvas.height=height;ctx.fillStyle='#211c38';ctx.fillRect(0,0,960,height);
+ for(let i=0;i<party.length;i++){
+  loadActor(i);ctx.save();ctx.translate((i%columns)*960*scale,Math.floor(i/columns)*520*scale);ctx.scale(scale,scale);ctx.beginPath();ctx.rect(0,0,960,520);ctx.clip();drawSolo();
+  ctx.fillStyle='#211b32ed';ctx.fillRect(12,108,330,34);ctx.fillStyle='#f4e5bf';ctx.font='bold 15px system-ui';ctx.textAlign='left';ctx.fillText(`Person ${i+1} · ${avatar().name} · ${'♥'.repeat(lives)}`,24,131);
+  if(party[i].waiting){ctx.fillStyle='#211b32cc';ctx.fillRect(170,200,620,90);label('Ziel erreicht! Warte auf die anderen.',480,252);}
+  ctx.strokeStyle='#b49ac9';ctx.lineWidth=5;ctx.strokeRect(0,0,960,520);ctx.restore();
+ }
+ if(generation===partyGeneration)loadActor(focus);
+}
+
 const avatar=()=>AVATARS[selectedLotta];
 const named=text=>String(text).replaceAll('{figur}',avatar().name);
 function say(text){$('dialog').textContent=named(text);chatTimer=5;}
-function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();$('level').textContent=named(`${chapter+1} / 5 · ${level.name}`);hud();say(level.target);}
+function setup(){const level=current();player={...level.start};gems=level.gems.map(g=>({...g,collected:false}));vampires=level.vampires.map((v,i)=>({...v,homeX:v.x,homeY:v.y,name:v.name||(i===0?'Vampirinchen':'Vampir '+(i+1))}));score=0;time=0;lives=3;hurtTimer=1.5;flightHeight=120;landing=false;if(chapter===4)wings=true;cooldown=1;climb=0;fallTime=0;bridgeDone=false;selectedBridge=-1;inventory=CELLAR_KEYS.map(k=>({...k,collected:false,tried:false}));correctKey=Math.floor(Math.random()*inventory.length);ladderUnlocked=false;fear=chapter===4?.05:.35;entranceChosen=chapter!==2;activeTalk=null;talkStep=0;$('conversation').hidden=true;$('door-choice').hidden=true;camera=0;keys.clear();resetParty();$('level').textContent=named(`${chapter+1} / 5 · ${level.name}`);hud();say(level.target);}
 function hud(){
  $('lives').textContent=named('♥ '.repeat(lives)+'♡ '.repeat(3-lives));$('lives').setAttribute('aria-label',`${lives} von 3 Leben`);$('control-hint').textContent=named(chapter===4?'↑ Steigen · ↓ Sinken · ← / → Seitwärts · P Pause':'↑ Vorwärts · ↓ Zurück · ← / → Seitwärts · P Pause');
  $('feeling').textContent=named(fear>.7?'♡ Starkes Herzklopfen':fear>.3?'♡ Ein bisschen Angst':'♡ Wieder mutiger');
@@ -18,9 +103,9 @@ function hud(){
  $('lock-status').textContent=named(ladderUnlocked?'✓ Aufgeschlossen! Halte ↑ an der Leiter.':'Welcher Schlüssel passt? Du darfst alle ausprobieren.');
 }
 function chooseLotta(value){
- if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
+ if(!Object.hasOwn(AVATARS,value))return;const oldName=avatar().name;selectedLotta=value;if(party.length===1)party[0].id=value;for(const id of ['dialog','talk-text','talk-thought','reply-one','reply-two','title','description'])$(id).textContent=$(id).textContent.replaceAll(oldName,avatar().name);
  document.querySelectorAll('[data-lotta]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.lotta===value)));
- $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=freundinnen-18';
+ $('selected-portrait').alt=avatar().description;$('selected-portrait').src=avatar().portrait+'?v=miteinander-20';
  $('hero-name').textContent=named(avatar().name);$('portrait-caption').textContent=named(`Das bist du: ${avatar().name} ✨`);
  document.title=avatar().name+' & Vampirinchen';
  if(mode==='ready'){$('title').textContent=named(`Hallo, ${avatar().name}!`);}
@@ -29,10 +114,10 @@ function chooseLotta(value){
 function loseLife(reason){
  if(hurtTimer>0)return true;
  lives=Math.max(0,lives-1);hurtTimer=1.8;fear=1;hud();
- if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?','Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Figur bleibt dieselbe.','Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
+ if(lives===0){mode='gameover';keys.clear();$('conversation').hidden=true;$('door-choice').hidden=true;$('pause').disabled=true;overlay('DIE DREI HERZEN SIND AUFGEBRAUCHT','Noch ein Versuch in diesem Kapitel?',party.length===1?'Du startest dieses Kapitel mit drei neuen Leben. Die gewählte Figur bleibt dieselbe.':`${avatar().name} hat alle drei Leben verbraucht. Ihr startet gemeinsam dieses Kapitel neu. Jede Person bekommt drei neue Leben; eure Figuren bleiben dieselben.`,'Kapitel neu versuchen →');$('start').focus({preventScroll:true});return false;}
  say(`${reason} Ein Herz weniger – noch ${lives} Leben. Du bist kurz geschützt.`);return true;
 }
-function finishHome(){mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN','Gute Nacht, {figur}!','{figur} ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');$('start').focus({preventScroll:true});}
+function finishHome(){if(!teamReached('home'))return;mode='finished';keys.clear();$('pause').disabled=true;overlay('ZU HAUSE ANGEKOMMEN',party.length>1?'Alle sind zu Hause!':'Gute Nacht, {figur}!',party.length>1?party.map(p=>AVATARS[p.id].name).join(', ')+' sind durch die Luft nach Hause geflogen und sicher gelandet. Ihr habt das Abenteuer gemeinsam geschafft!':'{figur} ist durch die Luft nach Hause geflogen, den fliegenden Vampiren ausgewichen und sicher vor ihrer Haustür gelandet.','Das Abenteuer nochmal spielen →');renderLobby();$('start').focus({preventScroll:true});}
 function updateFlight(dt,vertical,side){
  if(landing){flightHeight=Math.max(0,flightHeight-95*dt);if(flightHeight===0)finishHome();hud();return;}
  player.x=Math.min(current().width-110,player.x+FLIGHT.speed*dt);
@@ -48,14 +133,14 @@ function updateFlight(dt,vertical,side){
  hud();
 }
 function tryKey(index){
- if(mode!=='playing'||chapter!==2||player.x<=current().width-350||ladderUnlocked)return;
+ if(mode!=='playing'||chapter!==2||(party.length===1?player.x<=current().width-350:!party.some(p=>p.state.player.x>current().width-350))||ladderUnlocked)return;
  const key=inventory[index];if(!key||!key.collected||key.tried)return;
  if(index===correctKey){ladderUnlocked=true;say('KLICK! Der richtige Schlüssel! Sammle noch fehlende Mondsteine und halte dann ↑ an der Leiter.');}
  else{key.tried=true;say('Dieser Schlüssel passt nicht. Probiere einen anderen – du verlierst nichts.');}
  hud();
 }
 function beginTalk(vampire){
- if(mode!=='playing')return;mode='talk';activeTalk=vampire;talkStep=0;keys.clear();
+ if(mode!=='playing')return;heldKeys.clear();mode='talk';activeTalk=vampire;talkStep=0;keys.clear();
  fear=1;hud();say('{figur} denkt: „Oh nein, ein Vampir! Mein Herz klopft. Ich traue mich trotzdem zu fragen.“');$('talk-thought').textContent=named(vampire.boss?'{figur} denkt: „Der Obervampir ist so groß! Ich habe Angst … aber ich möchte nach Hause.“':'{figur} denkt: „Meine Hände zittern. Hoffentlich lässt er mich vorbei.“');
  $('conversation').hidden=false;$('talk-name').textContent=named(vampire.name);$('talk-portrait').hidden=vampire.name!=='Vampirinchen';
  $('talk-text').textContent=named(vampire.boss?'Obervampir: „Du hast Mut und Freundlichkeit bewiesen. Was wünschst du dir, {figur}?“':`${vampire.name}: „Halt! Wer bist du und wohin möchtest du?“`);
@@ -78,15 +163,15 @@ function chooseDoor(index){
  else{chapter=0;wings=false;setup();mode='outside';$('pause').disabled=true;overlay('DIESE TÜR FÜHRT NACH DRAUSSEN','Wieder vor dem Schloss!','{figur} ist durch eine Außentür gegangen. Alle Mondsteine, Schlüssel und Gespräche werden zurückgesetzt. Das Abenteuer beginnt wieder ganz vorne im Garten. Merke dir die falsche Tür!','Von vorne im Garten starten →');$('start').focus({preventScroll:true});}
 }
 function showDoors(){
- mode='doors';keys.clear();$('door-choice').hidden=false;
+ mode='doors';heldKeys.clear();keys.clear();$('door-choice').hidden=false;
  $('door-one').focus({preventScroll:true});
  say('Drei Türen: Nur eine führt in den Keller. Die anderen führen nach draußen und starten das ganze Abenteuer neu.');
 }
 function overlay(tag,title,text,button){$('tag').textContent=named(tag);$('title').textContent=named(title);$('description').textContent=named(text);$('start').textContent=named(button);$('overlay').hidden=false;}
-function start(){if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent=named('Pause');return;}if(mode==='chapter')chapter++;if(mode==='ready'||mode==='finished')correctDoor=Math.floor(Math.random()*3);if(mode==='finished'||mode==='outside'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent=named('Pause');}
-function pause(){if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent=named('Weiter');overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
-function next(title,text){keys.clear();mode='chapter';$('pause').disabled=true;overlay('DAS ABENTEUER GEHT WEITER',title,text,'Weiter →');$('start').focus({preventScroll:true});}
-function update(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hurtTimer-dt);fear=Math.max(.1,fear-dt*.07);const looming=vampires.some(v=>!v.passed&&v.homeX-player.x>0&&v.homeX-player.x<240);if(looming)fear=Math.max(fear,.55);cooldown=Math.max(0,cooldown-dt);chatTimer=Math.max(0,chatTimer-dt);
+function start(){if(mode==='ready'&&!party.every(p=>p.ready))return;if(mode==='paused'){mode='playing';$('overlay').hidden=true;$('pause').textContent=named('Pause');return;}if(mode==='chapter')chapter++;if(mode==='ready'||mode==='finished')correctDoor=Math.floor(Math.random()*3);if(mode==='finished'||mode==='outside'){chapter=0;wings=false;}setup();mode='playing';$('overlay').hidden=true;$('pause').disabled=false;$('pause').textContent=named('Pause');renderLobby();}
+function pause(){heldKeys.clear();if(mode==='paused'){start();return;}if(mode!=='playing')return;keys.clear();mode='paused';$('pause').textContent=named('Weiter');overlay('KLEINE MONDSCHEINPAUSE','Alles wartet auf dich.',current().target,'Weiter geht’s →');}
+function next(title,text){if(!wings&&!teamReached('chapter'))return;heldKeys.clear();keys.clear();mode='chapter';$('pause').disabled=true;overlay('DAS ABENTEUER GEHT WEITER',title,text,'Weiter →');$('start').focus({preventScroll:true});}
+function updateSolo(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hurtTimer-dt);fear=Math.max(.1,fear-dt*.07);const looming=vampires.some(v=>!v.passed&&v.homeX-player.x>0&&v.homeX-player.x<240);if(looming)fear=Math.max(fear,.55);cooldown=Math.max(0,cooldown-dt);chatTimer=Math.max(0,chatTimer-dt);
  if(fallTime>0){fallTime-=dt;if(fallTime<=0){chapter=2;setup();mode='playing';showDoors();say('Plumps! {figur} ist weich gelandet. Vor ihr sind drei Eingänge – nur einer führt in den richtigen Keller.');}return;}
  if(chapter===2&&!entranceChosen){showDoors();return;}
  const dx=Number(keys.has('ArrowUp')||keys.has('w'))-Number(keys.has('ArrowDown')||keys.has('s'));
@@ -113,13 +198,13 @@ function update(dt){if(mode!=='playing')return;time+=dt;hurtTimer=Math.max(0,hur
  for(const gem of gems)if(!gem.collected&&touching(player,gem,32)){gem.collected=true;score++;hud();say(score===gems.length?current().target+' Alles eingesammelt!': '{figur}: „Gefunden! Weiter geht’s.“');}
  if(chapter===2)for(const key of inventory)if(!key.collected&&touching(player,key,30)){key.collected=true;hud();say(`${key.name} gefunden! Erst an der Leiter erfährst du, ob er passt.`);}
  if(chapter===0&&player.x>current().width-180){if(score===gems.length)next('Willkommen im Schloss!','Die Mondsteine öffnen das Schlosstor. Drinnen warten zwei Hängebrücken. Wähle eine und überquere sie, um die Falltür zu erreichen.');else if(chatTimer===0)say('Am Tor fehlen noch Mondsteine. Suche im großen Garten!');}
- if(chapter===1&&player.x>2250&&player.x<2390&&score===1&&bridgeDone){fallTime=1.3;keys.clear();fear=1;hud();say('{figur}: „Aaaah! Der Boden geht auf!“ Ihr Herz rast, dann landet sie weich auf Heu.');return;}
+ if(chapter===1&&player.x>2250&&player.x<2390&&score===1&&bridgeDone){if(!teamReached('fall'))return;fallTime=1.3;keys.clear();fear=1;hud();say('{figur}: „Aaaah! Der Boden geht auf!“ Ihr Herz rast, dann landet sie weich auf Heu.');return;}
  if(chapter===1&&player.x>2150&&(!bridgeDone||score===0)&&chatTimer===0)say('Erst den Schlüssel holen und eine der beiden Hängebrücken vollständig überqueren.');
  if(chapter===2&&player.x>current().width-200&&Math.abs(player.y-350)<80&&ladderUnlocked&&score===gems.length&&inventory.every(k=>k.collected)&&dx>0){climb+=dt;if(climb>=1.5)next('Wieder oben!','{figur} klettert Sprosse für Sprosse nach oben. Die Treppe führt direkt in den Turm zum Obervampir.');}else climb=0;
  if(chapter===2&&player.x>current().width-350&&chatTimer===0)say(ladderUnlocked?(score===gems.length&&inventory.every(k=>k.collected)?'Halte ↑ an der Leiter gedrückt.':'Es fehlen noch Mondsteine oder Schlüssel im Keller.'):'Probiere unten einen deiner gefundenen Schlüssel am Schloss aus.');
  if(chapter===3&&Math.abs(player.x-(current().width-210))<55&&Math.abs(player.y-350)<45&&dx>0){
   if(!vampires.filter(v=>v.guard).every(v=>v.passed)){if(chatTimer===0)say('Vor dem Obervampir warten zwei Wachen. Gehe nah zu jeder Wache und sprich mit ihr.');}
-  else if(score===gems.length){beginTalk({name:'Obervampir',boss:true,x:current().width-210,y:350});return;}
+  else if(score===gems.length){if(!teamReached('tower'))return;beginTalk({name:'Obervampir',boss:true,x:current().width-210,y:350});return;}
   else if(chatTimer===0)say('Obervampir: „Bring mir alle acht Zaubersteine, dann erfülle ich deinen Wunsch.“');
  }
  hud();
@@ -152,8 +237,8 @@ function project(x,y){return chaseProject(x,y,player);}
 function unicornPatch(x,y,scale=1){
  ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ellipse(0,0,7,4,'#bba8d5');line([[3,-1],[6,-8]],'#bba8d5',4);ellipse(8,-8,4,3,'#bba8d5');poly([[7,-11],[8,-17],[10,-11]],'#edc878');line([[-3,2],[-3,7]],'#bba8d5',2);line([[3,2],[3,7]],'#bba8d5',2);line([[-6,-1],[-12,-5]],'#e3a6c6',3);ctx.restore();
 }
-function lottaFromBehind(){
- const a=avatar(),walking=chapter!==4&&mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k=>keys.has(k));
+function lottaFromBehind(a=avatar(),self=true){
+ const walking=chapter!==4&&mode==='playing'&&['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].some(k=>keys.has(k));
  const stride=walking&&!reducedMotion?Math.sin(visualTime*10)*5:0,footLeft=chapter===4?-4:stride,footRight=chapter===4?-4:-stride;
  if(chapter!==4)ellipse(0,2,25,8,'#cfe3d775');
  const flap=chapter===4&&!reducedMotion?Math.sin(visualTime*6)*15:0;
@@ -176,10 +261,10 @@ function lottaFromBehind(){
   if(a.hairStyle==='long'){poly([[-20,-90],[-23,-70],[-20,-48],[-25,-31],[-12,-39],[0,-34],[15,-40],[25,-31],[20,-61],[21,-91]],a.hair);line([[-12,-87],[-15,-64],[-10,-43]],a.highlight,3);line([[12,-87],[14,-65],[10,-43]],a.highlight,3);}
   else{poly([[-20,-91],[-23,-73],[-20,-59],[-10,-62],[0,-59],[11,-62],[21,-59],[23,-75],[20,-92]],a.hair);line([[-13,-86],[-16,-69],[-13,-63]],a.highlight,2);line([[13,-86],[16,-69],[13,-63]],a.highlight,2);}
  }
- label('DU · '+a.name.toUpperCase(),0,28,'#e8f5e7');
+ label((self?'DU · ':'')+a.name.toUpperCase(),0,28,'#e8f5e7');
 }
 function floorPatch(x1,x2,y1,y2,color){const near=Math.max(x1,player.x-85),far=Math.min(x2,player.x+1450);if(near>=far)return;const a=project(near,y1),b=project(near,y2),c=project(far,y2),d=project(far,y1);if(a&&b&&c&&d)poly([[a.x,a.y],[b.x,b.y],[c.x,c.y],[d.x,d.y]],color);}
-function draw(){
+function drawSolo(){
  const level=current();ctx.fillStyle=chapter===2?'#292436':'#35314e';ctx.fillRect(0,0,960,520);
  if(chapter===0||chapter===4){ellipse(790,65,33,33,'#efddb0');for(let i=0;i<30;i++)ellipse((i*137+22)%960,(i*59+20)%155,1.3,1.3,'#c6b4d7');}
  ctx.fillStyle=chapter===0?'#53634e':chapter===4?'#536b72':'#625567';ctx.fillRect(0,chapter===4?390:170,960,chapter===4?130:350);
@@ -196,6 +281,7 @@ function draw(){
  if(chapter===2)for(const key of inventory)if(!key.collected)objects.push({...key,type:'key'});
  for(const v of vampires)objects.push({...v,type:'vampire'});
  objects.push({x:player.x,y:player.y,type:'lotta'});
+ if(party.length>1)party.forEach((p,i)=>{if(i!==actorIndex)objects.push({...p.state.player,type:'friend',id:p.id,state:p.state});});
  if(chapter===2&&!entranceChosen)for(let i=0;i<3;i++)objects.push({x:320,y:235+i*100,type:'choiceDoor',number:i+1});
  if(chapter===0)objects.push({x:level.width-100,y:350,type:'door'});
  if(chapter===2)objects.push({x:level.width-130,y:350,type:'ladder'});
@@ -203,8 +289,9 @@ function draw(){
  if(chapter===4)objects.push({x:2490,y:400,type:'house'});
  objects.sort((a,b)=>b.x-a.x);
  for(const o of objects){const p=project(o.x,o.y);if(!p||p.x<-250||p.x>1210)continue;ctx.save();ctx.translate(p.x,p.y);ctx.scale(p.scale,p.scale);
- if(chapter===4&&(o.type==='lotta'||o.type==='vampire')){ellipse(0,0,o.type==='lotta'?24:18,5,'#121b3030');ctx.translate(0,-(o.type==='lotta'?flightHeight:o.altitude||125));if(o.type==='vampire'){poly([[-10,-45],[-60,-80],[-72,-32],[-29,-23]],'#795784');poly([[10,-45],[60,-80],[72,-32],[29,-23]],'#795784');}}
+ if(chapter===4&&(o.type==='lotta'||o.type==='friend'||o.type==='vampire')){ellipse(0,0,o.type==='vampire'?18:24,5,'#121b3030');ctx.translate(0,-(o.type==='lotta'?flightHeight:o.type==='friend'?o.state.flightHeight:o.altitude||125));if(o.type==='vampire'){poly([[-10,-45],[-60,-80],[-72,-32],[-29,-23]],'#795784');poly([[10,-45],[60,-80],[72,-32],[29,-23]],'#795784');}}
  if(o.type==='lotta'){if(hurtTimer>0&&Math.floor(visualTime*8)%2)ctx.globalAlpha=.55;if(climb>0)ctx.translate(0,-climb*65);lottaFromBehind();}
+ if(o.type==='friend'){if(o.state.hurtTimer>0&&Math.floor(visualTime*8)%2)ctx.globalAlpha=.55;if(o.state.climb>0)ctx.translate(0,-o.state.climb*65);lottaFromBehind(AVATARS[o.id],false);}
  if(o.type==='vampire'){if(chapter===4&&o.passed)ctx.globalAlpha=.35;ctx.strokeStyle=o.passed?'#a5cf9a':'#e6b784';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,25,8,0,0,Math.PI*2);ctx.stroke();character({x:0,y:0,boss:o.boss,name:o.name},true);if(o.passed)label('✓ Danke!',0,-122,'#c3e0ad');}
  if(o.type==='gem'){poly([[0,-40],[15,-20],[0,0],[-15,-20]],'#e9cc83');}
  if(o.type==='key'){ellipse(0,-30,10,10,'#edc982');line([[0,-20],[0,2],[8,2]],'#edc982',5);label(o.name,0,-55);}
@@ -230,7 +317,8 @@ document.querySelectorAll('[data-door]').forEach((button,i)=>button.addEventList
 $('reply-one').addEventListener('click',()=>reply(0));$('reply-two').addEventListener('click',()=>reply(1));
 document.querySelectorAll('[data-lotta]').forEach(button=>button.addEventListener('click',()=>chooseLotta(button.dataset.lotta)));
 $('start').addEventListener('click',start);$('pause').addEventListener('click',pause);
-window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='doors'&&['1','2','3'].includes(key)&&!e.repeat){e.preventDefault();chooseDoor(Number(key)-1);return;}if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(key)&&mode==='playing'){e.preventDefault();keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
-window.addEventListener('keyup',e=>keys.delete(e.key.length===1?e.key.toLowerCase():e.key));window.addEventListener('blur',()=>{keys.clear();if(mode==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')pause();});
+window.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;const key=e.key.length===1?e.key.toLowerCase():e.key;if(mode==='doors'&&['1','2','3'].includes(key)&&!e.repeat){e.preventDefault();chooseDoor(Number(key)-1);return;}if(mode==='talk'&&(key==='1'||key==='2')&&!e.repeat){e.preventDefault();reply(Number(key)-1);return;}if(CONTROLS.some(c=>c.keys.includes(key))&&mode==='playing'){e.preventDefault();heldKeys.add(key);if(party.length===1)keys.add(key);}if((key==='p'||key==='Escape')&&!e.repeat)pause();});
+window.addEventListener('keyup',e=>{const key=e.key.length===1?e.key.toLowerCase():e.key;heldKeys.delete(key);keys.delete(key);});window.addEventListener('blur',()=>{heldKeys.clear();keys.clear();if(mode==='playing')pause();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&mode==='playing')pause();});
 document.querySelectorAll('[data-key]').forEach(button=>{button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture(e.pointerId);if(mode==='playing')keys.add(button.dataset.key);});for(const event of ['pointerup','pointercancel','lostpointercapture'])button.addEventListener(event,()=>keys.delete(button.dataset.key));});
-setup();chooseLotta('lea');
+document.querySelectorAll('[data-count]').forEach(button=>button.addEventListener('click',()=>setPartyCount(Number(button.dataset.count))));
+setup();chooseLotta('lea');renderLobby();

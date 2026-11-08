@@ -197,3 +197,9 @@ Die Figurenauswahl bietet jetzt Lea (fliederfarbenes Kleid), Luna (mintfarbenes 
 Lea: gelbes Kleid, lila Sandalen, lange mittelbraune Haare. Lilly: grüne Hose, braunes T-Shirt, braune Schuhe, blonde schulterlange Haare. Luna: wuschelige schwarze Haare, dunkle Haut, dunkelblaues T-Shirt, schwarzer Rock (keine Jeans), braune Schuhe. Hanna: gepunktete Leggings, weißes T-Shirt mit Einhornmotiv, weiße Schuhe, mittelbraune Haare. Porträts und Rückenansichten verwenden jeweils passende Kleidung, Haare und Hautfarben. Alle vier sind gleich spielbar.
 
 Aktuelle Spielfiguren: Lea, Luna, Lilly und Hanna ersetzen Lotta vollständig. Alle Gespräche und Kapitel verwenden den Namen der ausgewählten Freundin.
+
+### Vampirinchen gemeinsam spielen
+
+Lokaler Mehrspielermodus für 1–4 echte Mitspielende am selben Gerät. Jede Person wählt eine eigene Freundin (Lea, Luna, Lilly oder Hanna); doppelte Figuren werden beim Auswählen getauscht. Im Mehrspielermodus bestätigt jede Person selbst „Bereit“, erst danach kann das Spiel starten. Keine Computersteuerung und kein Netzwerkmodus.
+
+Alle spielen gleichzeitig: Person 1 mit Pfeiltasten, Person 2 mit WASD, Person 3 mit IJKL und Person 4 mit TFGH. Auf Touchscreens hat jede Person ein eigenes Pfeilfeld mit Mehrfingerbedienung. Jede Figur bekommt ihre eigene Kamera und drei eigene Leben pro Kapitel. Sammelobjekte, Schlüssel und Gespräche werden gemeinsam erledigt. An Tor, Falltür, Leiter und zu Hause wartet man aufeinander. Sind die drei Leben einer Figur verbraucht, wiederholt die Gruppe das Kapitel. Gespräche und Pause stoppen alle Ansichten.

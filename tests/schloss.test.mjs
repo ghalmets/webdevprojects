@@ -117,3 +117,55 @@ test('Lea, Luna, Lilly und Hanna haben eigene Figuren und erscheinen in Gespräc
  }
  const run=game();run('start();beginTalk({name:"Vampir"});chooseLotta("hanna")');assert.ok(run('$("reply-one").textContent').includes('Hanna'));assert.ok(!run('$("reply-one").textContent').includes('Lea'));
 });
+
+test('Lokale Gruppe benötigt für jede Person eine eigene Bereitschaft und eindeutige Figur',()=>{
+ const run=game();
+ for(const count of [1,2,3,4]){
+  run(`mode='ready';setPartyCount(${count});start()`);
+  assert.equal(run('party.length'),count);
+  assert.equal(run('mode'),count===1?'playing':'ready');
+  if(count>1){run('confirmPlayer(0);start()');assert.equal(run('mode'),'ready');run('party.forEach((_,i)=>confirmPlayer(i));start()');assert.equal(run('mode'),'playing');}
+ }
+ run("mode='ready';setPartyCount(4);assignCharacter(0,'hanna')");
+ assert.equal(run('party[0].id'),'hanna');assert.equal(run('new Set(party.map(p=>p.id)).size'),4);
+ run("confirmPlayer(0);confirmPlayer(1);assignCharacter(1,'hanna')");assert.ok(!run('party[0].ready'));assert.ok(!run('party[1].ready'));
+ run('party.forEach((_,i)=>confirmPlayer(i));start();setPartyCount(1)');assert.equal(run('party.length'),4);
+});
+
+test('Vier echte Steuerungen bewegen nur die zugehörigen Figuren; Pause stoppt alle',()=>{
+ const run=game();run("setPartyCount(4);party.forEach((_,i)=>confirmPlayer(i));start();vampires=[];party.forEach(p=>p.state.player={x:150,y:330});heldKeys.add('ArrowUp');update(.1)");
+ assert.ok(run('party[0].state.player.x')>150);
+ for(const i of [1,2,3])assert.equal(run(`party[${i}].state.player.x`),150);
+ run("heldKeys.clear();heldKeys.add('d');heldKeys.add('k');heldKeys.add('f');update(.1)");
+ assert.ok(run('party[1].state.player.y')>330);assert.ok(run('party[2].state.player.x')<150);assert.ok(run('party[3].state.player.y')<330);
+ const before=run('JSON.stringify(party.map(p=>p.state.player))');run('pause();update(1);draw()');assert.equal(run('JSON.stringify(party.map(p=>p.state.player))'),before);assert.equal(run('heldKeys.size'),0);
+});
+
+test('Sammeln ist gemeinsam; alle müssen zum Tor kommen und behalten ihre Figuren',()=>{
+ const run=game();run("setPartyCount(3);party.forEach((_,i)=>confirmPlayer(i));start();vampires=[];party[1].state.player={...gems[0]};update(0)");assert.equal(run('score'),1);
+ run("gems.forEach(g=>g.collected=true);score=gems.length;party[0].state.player={x:current().width-100,y:350};update(0)");assert.equal(run('mode'),'playing');assert.equal(run('party[0].waiting'),'chapter');
+ run("party[1].state.player={x:current().width-100,y:350};update(0)");assert.equal(run('mode'),'playing');
+ run("party[2].state.player={x:current().width-100,y:350};update(0)");assert.equal(run('mode'),'chapter');
+ run('start()');assert.equal(run('chapter'),1);assert.ok(run('party.every(p=>p.waiting===null&&p.state.lives===3)'));assert.equal(run('party.map(p=>p.id).join()'),'lea,luna,lilly');
+});
+
+test('Falltür wartet auf alle und fällt anschließend gemeinsam; eigenes Lebensbudget',()=>{
+ const run=game();run("setPartyCount(2);party.forEach((_,i)=>confirmPlayer(i));start();chapter=1;setup();mode='playing';vampires=[];score=1;party[0].state.player={x:2300,y:350};party[0].state.bridgeDone=true;update(0)");
+ assert.equal(run('fallTime'),0);assert.equal(run('party[0].waiting'),'fall');
+ run("party[1].state.player={x:2300,y:350};party[1].state.bridgeDone=true;update(0)");assert.ok(run('fallTime')>0);run('update(1.4)');assert.equal(run('chapter'),2);assert.equal(run('mode'),'doors');assert.ok(run('party.every(p=>p.waiting===null)'));
+ run('chooseDoor(correctDoor);loadActor(1);hurtTimer=0;loseLife("Treffer");saveActor()');assert.equal(run('party[0].state.lives'),3);assert.equal(run('party[1].state.lives'),2);
+ run('hurtTimer=0;loseLife("Treffer");hurtTimer=0;loseLife("Treffer");saveActor()');assert.equal(run('mode'),'gameover');run('start()');assert.equal(run('chapter'),2);assert.ok(run('party.every(p=>p.state.lives===3)'));
+});
+
+test('Gemeinsamer Heimflug endet erst, wenn jede selbst gesteuerte Figur gelandet ist',()=>{
+ const run=game();run("setPartyCount(2);party.forEach((_,i)=>confirmPlayer(i));start();chapter=4;setup();mode='playing';vampires=[];heldKeys.add('w');update(.1)");
+ assert.ok(run('party[0].state.player.x')>80);assert.ok(run('party[1].state.flightHeight')>run('party[0].state.flightHeight'));
+ run('party[0].state.landing=true;party[0].state.flightHeight=0;update(0)');assert.equal(run('mode'),'playing');assert.equal(run('party[0].waiting'),'home');
+ run('party[1].state.landing=true;party[1].state.flightHeight=0;update(0);draw()');assert.equal(run('mode'),'finished');
+});
+
+test('Vor dem Obervampir wartet die Gruppe aufeinander und bekommt gemeinsam Flügel',()=>{
+ const run=game();run("setPartyCount(2);party.forEach((_,i)=>confirmPlayer(i));start();chapter=3;setup();mode='playing';vampires.forEach(v=>v.passed=true);score=gems.length;party[0].state.player={x:current().width-210,y:350};heldKeys.add('ArrowUp');update(0)");assert.equal(run('mode'),'playing');assert.equal(run('party[0].waiting'),'tower');
+ run("heldKeys.clear();party[1].state.player={x:current().width-210,y:350};heldKeys.add('w');update(0)");assert.equal(run('mode'),'talk');assert.ok(run('$("talk-text").textContent').includes('Luna'));
+ run('reply(0);reply(0)');assert.equal(run('mode'),'chapter');assert.ok(run('wings'));run('start()');assert.equal(run('chapter'),4);assert.ok(run('party.every(p=>!p.waiting&&p.state.flightHeight>0)'));
+});
